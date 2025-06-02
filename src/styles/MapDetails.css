@@ -1,0 +1,750 @@
+.map-details {
+  padding: 1rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-header {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.map-header h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.nade-type-filter {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.nade-type-filter button {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.nade-type-filter button:hover {
+  opacity: 1;
+}
+
+.nade-type-filter button.active {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.map-container {
+  flex: 1;
+  width: 100%;
+  height: calc(100vh - 150px); /* Віднімаємо висоту хедера та відступів */
+  position: relative;
+  margin: 0 auto;
+}
+
+.map-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--surface-color);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.map-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Змінюємо на contain для показу всієї карти */
+  background-color: var(--background-color);
+}
+
+.spot-marker {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.spot-name {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.spot-marker:hover .spot-name {
+  opacity: 1;
+}
+
+.nade-marker {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 3;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+}
+
+.nade-marker.start {
+  cursor: pointer;
+}
+
+.nade-marker.end {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background-color: transparent;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.nade-marker.end.smoke.T {
+    background-image: url('../assets/endGrenadeIcons/SmokeT.png');
+  }
+  
+  .nade-marker.end.smoke.CT {
+    background-image: url('../assets/endGrenadeIcons/SmokeCT.png');
+  }
+  
+  .nade-marker.end.flash {
+    background-image: url('../assets/endGrenadeIcons/flash.png');
+  }
+  
+  .nade-marker.end.molotov {
+    background-image: url('../assets/endGrenadeIcons/molotov.png');
+  }
+  
+  .nade-marker.end.he {
+    background-image: url('../assets/endGrenadeIcons/he.png');
+  }
+
+.nade-marker.active {
+  transform: translate(-50%, -50%) scale(1.2);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+  z-index: 10;
+}
+
+.nade-marker.end:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  filter: brightness(1.2);
+}
+
+.nade-marker.end.active {
+  transform: translate(-50%, -50%) scale(1.2);
+  filter: brightness(1.3);
+  z-index: 10;
+}
+
+.nade-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  margin-bottom: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.nade-marker:hover .nade-tooltip {
+  opacity: 1;
+}
+
+.trajectory-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Hide trajectory lines AND markers when tutorial panel is expanded */
+.map-details.tutorial-panel-expanded .trajectory-line,
+.map-details.tutorial-panel-expanded .nade-marker {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0s 0s, visibility 0s 0s;
+}
+
+.nade-details-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--surface-color);
+  border-top: 1px solid var(--border-color);
+  transform: translateY(100%);
+  transition: transform 0.4s ease-in-out, max-height 0.4s ease-in-out;
+  z-index: 5;
+  max-height: 260px;
+  overflow: hidden;
+}
+
+.nade-details-panel.active {
+  transform: translateY(0);
+}
+
+.nade-details-panel.expanded {
+  max-height: 85vh;
+}
+
+.panel-content-wrapper {
+  padding: 1rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.panel-header h2 {
+  margin-bottom: 0;
+  font-size: 1.3rem;
+}
+
+.close-panel-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.close-panel-button:hover {
+  color: var(--text-color);
+}
+
+.nade-details-panel h2 {
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.nade-short-description {
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.nade-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  background-color: var(--background-color);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.info-item span:first-child {
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+}
+
+.watch-tutorial-toggle-button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: var(--text-color-on-primary, #fff);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+  text-align: center;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.watch-tutorial-toggle-button:hover {
+  background-color: var(--secondary-color);
+}
+
+.tutorial-expanded-content {
+  margin-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  display: flex;
+  height: calc(85vh - 180px); /* Adjusted height to ensure content visibility, considering panel header and padding */
+  /* 180px is an approximation for panel header, button, padding etc. Adjust if needed */
+  overflow: hidden; /* To prevent parent from expanding due to large iframe before it loads */
+}
+
+.full-description-header {
+  font-size: 1.1rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.nade-full-description {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+}
+
+.video-container-expanded {
+  position: relative;
+  padding-top: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #000;
+}
+
+.video-container-expanded iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+@media (max-width: 768px) {
+  .map-details {
+    padding: 0.5rem;
+  }
+
+  .map-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .nade-type-filter button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .nade-marker {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .nade-marker.end {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .spot-marker {
+    width: 10px;
+    height: 10px;
+  }
+
+  .map-container {
+    height: calc(100vh - 120px);
+  }
+}
+
+.map-info {
+  padding: 1rem;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.8), var(--surface-color));
+  position: absolute;
+  bottom: -50%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: bottom 0.3s ease;
+}
+
+.map-info:hover {
+  bottom: 0;
+}
+
+.map-name {
+  font-size: 1.5rem;
+  color: white;
+  margin: 0;
+}
+
+.lineups-count {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  padding: 0.5rem 1rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+/* Спроба змінити розмір відео в розширеній панелі туторіалу MapDetails */
+.tutorial-expanded-content .video-container-expanded {
+  position: relative; /* Потрібно для абсолютного позиціонування iframe */
+  width: 70%; /* Зробимо відео меншим, наприклад, 70% ширини батьківського блоку */
+  max-width: 600px; /* Максимальна ширина, щоб не було занадто великим на широких екранах */
+  margin: 1rem auto; /* Центрування та відступи */
+  padding-top: calc(70% * 0.5625); /* Співвідношення сторін 16:9 відносно нової ширини */
+  /* Якщо width: 100%, то padding-top: 56.25% */
+  /* Якщо width: 70%, то padding-top для iframe буде (70% * 9/16) від ширини video-container-expanded */
+  /* Краще: padding-top: 39.375%; (70% * 0.5625) */
+  /* Або, якщо ми хочемо, щоб сам контейнер мав співвідношення 16:9, то так: */
+  /* padding-top: 56.25%; */ 
+  /* Тоді iframe буде 100% від цього контейнера. Давайте спробуємо цей варіант: */
+  padding-top: 56.25%; /* Співвідношення сторін 16:9 для самого контейнера */
+  background-color: #000; /* Фон для контролю */
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tutorial-expanded-content .video-container-expanded iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Щоб забезпечити простір для тексту над відео, якщо він є */
+.tutorial-expanded-content .full-description-header,
+.tutorial-expanded-content .nade-full-description {
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%; /* Або інша ширина, щоб текст не був на всю ширину панелі */
+  max-width: 700px;
+}
+
+/* Нові стилі для двоколонкового макету всередині .tutorial-expanded-content */
+.tutorial-columns-layout {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  gap: 20px; /* Проміжок між колонками */
+}
+
+.tutorial-left-column {
+  flex: 0 0 45%; /* Make video column narrower */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  max-height: 100%; /* Ensure it doesn't overflow its parent */
+}
+
+.tutorial-right-column {
+  flex: 1 1 55%; /* Give more space to content on the right */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-right: 10px;
+  max-height: 100%; /* Ensure it doesn't overflow its parent */
+}
+
+/* Змінені стилі для відео-контейнера (раніше був .video-container-expanded) */
+/* Тепер він всередині .tutorial-left-column */
+.tutorial-left-column .video-container-expanded {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* Співвідношення сторін 16:9 */
+  height: 0; /* Класичний трюк для padding-top */
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #000;
+  margin-bottom: 10px; /* Added 10px margin at the bottom */
+  flex-shrink: 0; /* Prevent video container from shrinking if space is tight */
+}
+
+.tutorial-left-column .video-container-expanded iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Стилі для інструкцій та заповнювачів у правій колонці */
+.tutorial-right-column .full-description-header {
+  font-size: 1.1rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.tutorial-right-column .nade-full-description {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  flex-grow: 0; /* Allow it to take natural height, then favorite button and comments follow */
+}
+
+.tutorial-right-column .actions-and-comments-placeholder {
+  margin-top: 0; /* Removed auto margin, elements will stack naturally */
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color-light, #eee);
+  display: flex; /* Use flex to manage children */
+  flex-direction: column; /* Stack children vertically */
+  flex-grow: 1; /* Allow this section to take remaining space, pushing comments to bottom of visible area if needed */
+}
+
+.favorite-button-placeholder {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background-color: var(--secondary-color);
+  color: var(--text-color-on-primary, #fff);
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+.comments-placeholder-mapdetails {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 8px;
+  border: 1px dashed var(--border-color);
+  border-radius: 6px;
+  margin-top: 10px; /* Add some space above the comments section */
+  flex-grow: 1; /* Allow comments to take up space if the description is short */
+  display: flex; /* For centering content inside */
+  flex-direction: column; /* Stack "Comments" title and "(coming soon)" */
+  justify-content: flex-start; /* Align content to the top of the placeholder */
+}
+
+.comments-placeholder-mapdetails h4 {
+  font-size: 0.95rem;
+  margin-bottom: 5px;
+  color: var(--text-color);
+}
+
+/* New styles for Comments Section in MapDetails.js */
+.comments-section-mapdetails {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  /* background-color: var(--surface-color-darker, #2a2f3b); */ /* Removed background */
+  border-radius: 8px;
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); */ /* Removed box-shadow */
+}
+
+.comments-section-mapdetails h4 {
+  font-size: 1.5rem; /* Slightly larger */
+  color: var(--text-color);
+  margin-bottom: 1.75rem; /* Increased margin */
+  padding-bottom: 0.75rem; /* Increased padding */
+  border-bottom: 1px solid var(--border-color); /* Simplified border color */
+  text-align: left; /* Explicitly align left */
+}
+
+.comment-form {
+  display: flex;
+  flex-direction: column; /* Stack textarea and button */
+  gap: 0.75rem; /* Space between textarea and button */
+  margin-bottom: 2rem; /* More space after the form */
+}
+
+.comment-form textarea {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.85rem 1rem; /* Slightly more padding */
+  font-size: 1rem;
+  min-height: 90px; /* Slightly taller min-height */
+  resize: none; /* Remove the resize handle */
+  overflow-y: auto; /* Allow scrolling if content exceeds height */
+  width: 100%; /* Ensure it takes full width */
+  box-sizing: border-box; /* Consistent sizing */
+  /* margin-bottom: 0; Removed as gap is used in .comment-form */
+}
+
+.comment-form textarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+.comment-form textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-color-transparent, rgba(0, 123, 255, 0.25)); /* Fallback for transparency */
+}
+
+.comment-form button {
+  background-color: var(--primary-color);
+  color: var(--button-text-color, #ffffff);
+  padding: 0.85rem 1.5rem; /* Matched padding style */
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer; /* Add cursor pointer */
+  transition: background-color 0.2s ease; /* Smooth transition */
+  width: auto; /* Allow button to size to content */
+  align-self: flex-end; /* Align button to the right */
+}
+
+.comment-form button:hover {
+  background-color: var(--primary-color-dark, #0056b3); /* Fallback for dark primary */
+}
+
+.comment-form button:disabled {
+  background-color: var(--disabled-color, #555); /* Fallback for disabled */
+  color: var(--text-color-muted, #aaa);
+  cursor: not-allowed;
+}
+
+.comments-list {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem; /* Adjusted space between comment items */
+}
+
+.comment-item {
+  background-color: var(--surface-color-lighter, #2c313a); /* Slightly lighter surface for differentiation, with fallback */
+  padding: 1.25rem 1.5rem; /* Increased padding */
+  border-radius: 8px; /* Slightly more rounded */
+  border: 1px solid var(--border-color, #4b5162);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* Slightly enhanced shadow */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+}
+
+.comment-content {
+  flex-grow: 1; /* Allows text content to take up available space */
+}
+
+.comment-author {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.comment-author strong {
+  font-size: 1rem;
+  color: var(--primary-color-light, #8ab4f8); /* Adjusted for better harmony, with fallback */
+  font-weight: 600;
+}
+
+.comment-date {
+  font-size: 0.8rem;
+  color: var(--text-color-muted, #a0a8b8);
+  margin-left: 0.75rem;
+  align-self: center; /* Align with author name if they are on same line in flex */
+}
+
+.comment-text {
+  font-size: 0.95rem;
+  line-height: 1.65; /* Improved line height */
+  color: var(--text-color-secondary, #dde1e7); /* Slightly brighter secondary text, with fallback */
+  white-space: pre-wrap; 
+  word-wrap: break-word;
+  margin-top: 0.5rem; /* Add space between author line and text */
+}
+
+.comments-section-mapdetails > p em {
+  font-size: 0.9rem;
+  color: var(--text-color-muted);
+  text-align: center;
+  display: block;
+  margin-top: 1rem;
+}
+
+.delete-comment-button {
+  background-color: transparent;
+  color: var(--danger-color, #ff6b6b); /* Adjusted danger color, with fallback */
+  border: 1px solid var(--danger-color-transparent, rgba(255, 107, 107, 0.4)); /* Adjusted */
+  padding: 0.3rem 0.75rem; /* Slightly more padding */
+  border-radius: 5px; /* Slightly more rounded */
+  font-size: 0.8rem;
+  font-weight: 500; /* Make text a bit bolder */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 1rem; 
+  align-self: center; 
+}
+
+.delete-comment-button:hover {
+  background-color: var(--danger-color-transparent, rgba(255, 107, 107, 0.1)); /* Adjusted */
+  color: var(--danger-color-dark, #e74c3c); /* Adjusted */
+  border-color: var(--danger-color, #ff6b6b); /* Adjusted */
+}
+
+/* Стилі для кнопки "Улюблене" в панелі MapDetails */
+.map-details-favorite-button {
+  /* Спадкує стилі від .favorite-button (який має бути визначений глобально або в App.css/NadeDetails.css) */
+  /* Якщо .favorite-button не визначений глобально, потрібно скопіювати його стилі сюди */
+  /* Для прикладу, додамо деякі базові стилі, якщо глобальних немає: */
+  display: block;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color-hover);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.map-details-favorite-button:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.map-details-favorite-button.is-favorite {
+  background-color: var(--primary-color-light, #e6f2ff);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  font-weight: bold;
+}
+
+.map-details-favorite-button.is-favorite:hover {
+  background-color: var(--primary-color);
+  color: var(--text-color-on-primary, #fff);
+}
+
+.map-details-favorite-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+} 

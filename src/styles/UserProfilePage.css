@@ -1,0 +1,241 @@
+.user-profile-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem; /* Збільшено відступ */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Змінено шрифт */
+  background-color: var(--background-color); /* Використання змінної теми */
+  color: var(--text-color);
+  min-height: calc(100vh - 60px); /* 60px - приблизна висота Navbar */
+}
+
+.profile-container {
+  background-color: var(--surface-color);
+  padding: 2rem; /* Збільшено відступ */
+  border-radius: 12px; /* Збільшено радіус */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); /* Покращено тінь */
+  width: 100%;
+  max-width: 800px; /* Збільшено максимальну ширину */
+  /* text-align: center; -- прибрано, щоб секції могли мати своє вирівнювання */
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2.5rem; /* Збільшено відступ */
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1.5rem;
+}
+
+.profile-avatar {
+  width: 100px; /* Трохи зменшено для балансу */
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 2rem; /* Додано відступ справа */
+  border: 3px solid var(--primary-color-light, #ddd);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.profile-summary {
+  text-align: left;
+}
+
+.profile-summary h1 {
+  color: var(--primary-color);
+  margin: 0 0 0.5rem 0; /* Скорочено відступи */
+  font-size: 2.2em;
+}
+
+.profile-summary p {
+  font-size: 1em;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
+  line-height: 1.5;
+}
+
+.profile-summary p strong {
+  color: var(--text-color);
+}
+
+/* Загальні стилі для секцій */
+.profile-section {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.profile-section h2 {
+  font-size: 1.6em;
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color); /* Consistent border color */
+}
+
+/* Стилі для списку улюблених */
+.favorites-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.favorite-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0.75rem; /* Increased padding, added horizontal padding */
+  border-bottom: 1px solid var(--border-color-light, #444); /* Slightly darker border for dark theme if variable not set */
+  transition: background-color 0.2s ease, transform 0.2s ease; /* Added transform transition */
+  border-radius: 6px; /* Added border-radius to items */
+  margin-bottom: 0.5rem; /* Added space between items */
+}
+
+.favorite-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.favorite-item:hover {
+  background-color: var(--surface-color-hover, rgba(0,0,0,0.04));
+  transform: translateX(5px); /* Slight shift on hover */
+}
+
+html[data-theme='dark'] .favorite-item:hover {
+  background-color: var(--surface-color-hover, rgba(255,255,255,0.07));
+}
+
+.favorite-link {
+  color: var(--text-color);
+  text-decoration: none;
+  flex-grow: 1;
+  display: flex; /* Added for better alignment of children if needed */
+  flex-direction: column; /* Stack title and map name */
+  padding-right: 1rem; /* Add some space before the button */
+}
+
+.favorite-link:hover .favorite-nade-title {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.favorite-nade-title {
+  font-weight: 600;
+  font-size: 1.15em; /* Slightly increased */
+  display: block;
+  margin-bottom: 0.3rem; /* Adjusted margin */
+  color: var(--text-color-emphasis, var(--text-color)); /* Use emphasis color or fallback */
+}
+
+.favorite-map-name {
+  font-size: 0.9em;
+  color: var(--text-secondary);
+}
+
+.remove-favorite-button {
+  background-color: var(--danger-color-transparent, rgba(229, 62, 62, 0.1)); /* Lighter background */
+  color: var(--danger-color, #e53e3e);
+  border: 1px solid var(--danger-color-transparent, rgba(229, 62, 62, 0.3)); /* Lighter border */
+  padding: 0.5rem 1rem; /* Increased padding */
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em; /* Slightly increased */
+  font-weight: 500; /* Bolder text */
+  margin-left: 1rem;
+  transition: all 0.2s ease;
+  white-space: nowrap; /* Prevent button text from wrapping */
+}
+
+.remove-favorite-button:hover {
+  background-color: var(--danger-color, #e53e3e);
+  color: var(--button-text-color, #fff); /* Ensure text color is white or theme appropriate on hover */
+  border-color: var(--danger-color, #e53e3e);
+  transform: scale(1.05); /* Add slight scale effect */
+}
+
+.profile-section p {
+  color: var(--text-secondary);
+  font-size: 1em;
+}
+
+/* Повідомлення про помилку на всю ширину */
+.error-message.full-width-error {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+
+.loading-container,
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  font-size: 1.2em; /* Зменшено */
+  color: var(--text-secondary);
+  min-height: 200px;
+}
+
+
+/* Прибираємо старі .profile-card та .profile-info, так як їх замінили на .profile-header та .profile-summary */
+.profile-card, .profile-info { 
+  /* Можна залишити для сумісності або видалити, якщо вони більше ніде не використовуються */
+  /* display: none; */
+}
+
+/* Можете додати стилі для кнопки редагування, якщо вона буде */
+.edit-profile-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.edit-profile-button:hover {
+  background-color: #0056b3;
+}
+
+/* Стилі для секції статистики відео */
+.video-stats-section {
+  /* Схоже на favorites-section, але можна налаштувати */
+}
+
+.video-stats-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.video-stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0; /* Трохи менший відступ */
+  border-bottom: 1px solid var(--border-color-light, #eee);
+}
+
+.video-stat-item:last-child {
+  border-bottom: none;
+}
+
+.video-stat-title {
+  font-size: 1em;
+  color: var(--text-secondary);
+  flex-grow: 1;
+}
+
+.video-stat-count {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-left: 1rem;
+} 

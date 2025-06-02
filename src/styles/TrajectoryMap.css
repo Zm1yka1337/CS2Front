@@ -1,0 +1,69 @@
+.trajectory-map-container {
+  position: relative; /* Для абсолютного позиціонування SVG всередині */
+  width: 100%;       /* Займає всю доступну ширину */
+  max-width: 700px;  /* Обмеження максимальної ширини, щоб не було занадто великим на ПК */
+  margin: 1rem auto; /* Центрування контейнера */
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 8px;
+  overflow: hidden; /* Щоб кути були заокруглені разом із зображенням */
+}
+
+.trajectory-map-container.error {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  background-color: var(--surface-color-hover);
+}
+
+.map-background-image {
+  display: block;    /* Прибирає зайвий відступ під зображенням */
+  width: 100%;       /* Зображення завжди заповнює контейнер по ширині */
+  height: auto;      /* Висота автоматично підлаштовується для збереження пропорцій */
+}
+
+.trajectory-svg-overlay {
+  position: absolute; /* Накладається поверх зображення */
+  top: 0;
+  left: 0;
+  width: 100%;       /* SVG займає ті ж розміри, що й контейнер (і зображення) */
+  height: 100%;
+}
+
+.trajectory-line {
+  /* Стилі для лінії (stroke, strokeWidth і т.д.) задаються інлайново в SVG,
+     але можна перевизначити або додати тут, якщо потрібно */
+  vector-effect: non-scaling-stroke; /* Зберігає товщину лінії при масштабуванні SVG (не завжди підтримується, але корисно) */
+}
+
+/* Стилі для маркерів, якщо вони додані */
+.trajectory-svg-overlay circle {
+  /* Можна додати стилі, наприклад, для анімації або ефектів при наведенні */
+}
+
+/* Стилі для діагностичного блоку */
+.trajectory-map-outer-container {
+  width: 100%;
+  max-width: 700px; /* Синхронізуйте з max-width для .trajectory-map-container */
+  margin: 1rem auto; /* Синхронізуйте з margin для .trajectory-map-container */
+}
+
+.trajectory-debug-info {
+  background-color: var(--surface-color, #f0f0f0);
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 0 0 8px 8px; /* Заокруглення знизу, якщо контейнер карти має заокруглення зверху */
+  font-size: 0.85rem;
+  color: var(--text-secondary, #333);
+}
+
+.trajectory-debug-info h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: var(--text-color, #000);
+}
+
+.trajectory-debug-info p {
+  margin: 4px 0;
+  word-break: break-all;
+} 

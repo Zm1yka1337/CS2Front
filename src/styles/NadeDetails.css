@@ -1,0 +1,351 @@
+.nade-details-page {
+  padding: 2rem 0;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+}
+
+.nade-content {
+  background-color: var(--surface-color);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+}
+
+.nade-content h1 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.nade-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.info-card {
+  background-color: var(--background-color);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.info-card h3 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.info-card p {
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.info-card strong {
+  color: var(--text-color);
+  margin-right: 0.5rem;
+}
+
+.nade-description {
+  margin-bottom: 2rem;
+}
+
+.nade-description h2 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.video-section h2 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.video-container {
+  position: relative;
+  padding-top: 56.25%; /* 16:9 aspect ratio */
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+@media (max-width: 768px) {
+  .nade-content {
+    padding: 1.5rem;
+  }
+  
+  .nade-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .info-card {
+    padding: 1rem;
+  }
+}
+
+/* Watch Tutorial Button */
+.watch-tutorial-button {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: center;
+  color: #fff; /* Assuming a distinct button color */
+  background-color: var(--primary-color);
+  border-radius: 8px;
+  margin-top: 2rem;
+  transition: background-color 0.2s ease;
+}
+
+.watch-tutorial-button:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Tutorial Modal Styles */
+.tutorial-modal-overlay {
+  position: fixed !important; /* Keep !important for overlay as it needs to be on top */
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.85) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000 !important; /* Ensure overlay is on top */
+  padding: 20px; /* Add some padding for smaller screens */
+  box-sizing: border-box !important;
+}
+
+.tutorial-modal-content {
+  /* Remove temporary fixed sizes and test colors */
+  /* background-color: red !important; */
+  /* border: 5px solid blue !important; */
+  /* width: 300px !important; */
+  /* height: 200px !important; */
+  /* max-width: 300px !important; */
+  /* max-height: 200px !important; */
+  /* min-width: auto !important; */
+  /* min-height: auto !important; */
+  /* padding: 5px !important; */
+  /* overflow: hidden !important; */
+  /* display: block !important; */
+
+  /* Restore or add proper styles */
+  background-color: var(--surface-color, #fff);
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  width: 90%; /* Reduced from 95% */
+  max-width: 1000px; /* Reduced from 1100px */
+  height: auto; /* Changed from 700px to auto */
+  max-height: 90vh; /* Limit height to 90% of viewport height - usually okay */
+  overflow: hidden; /* Important to contain the flex layout */
+  display: flex;
+  flex-direction: column;
+  position: relative; /* For z-index context if needed */
+  z-index: 1001; /* Ensure content is above overlay dimmer */
+  padding-bottom: 20px; /* Added 20px padding at the bottom of the modal content */
+}
+
+/* Restore display for header and body */
+.tutorial-modal-header,
+.tutorial-modal-body {
+  display: flex; /* Use flex as it was likely intended */
+}
+
+.tutorial-modal-header {
+  padding: 1rem 1.5rem; /* Adjusted padding */
+  border-bottom: 1px solid var(--border-color, #dee2e6);
+  flex-shrink: 0;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tutorial-modal-header h2 {
+  font-size: 1.25rem; /* Adjusted size */
+  color: var(--primary-color, #007bff);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.close-tutorial-button {
+  font-size: 1.8rem; /* Larger for easier clicking */
+  line-height: 1;
+  color: var(--text-secondary, #6c757d);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem; /* Slightly more padding */
+  transition: color 0.2s ease;
+}
+
+.close-tutorial-button:hover {
+  color: var(--text-color, #212529);
+}
+
+.tutorial-modal-body {
+  overflow-y: auto; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: flex-start; /* Added to prevent stretching of modal-layout-container */
+}
+
+.modal-layout-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 1.5rem; 
+  padding: 1.5rem; 
+  box-sizing: border-box;
+  align-items: stretch; /* Changed from flex-start to stretch columns to equal height */
+}
+
+.modal-left-column {
+  flex: 0 0 40%; /* Increase left column width (e.g., to 40% of total) to reduce video size */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Spacing within left column */
+  overflow-y: auto; /* Allow left column to scroll if content is too long */
+  max-height: 100%; /* Fill available height from modal-layout-container */
+  padding-right: 10px; /* Add some padding if scrollbar appears */
+  box-sizing: border-box;
+  align-items: stretch; /* Ensure children like nade-description stretch to full width */
+}
+
+.modal-right-column {
+  flex: 1 1 60%; /* Right column will take the remaining 60% */
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Important for flex item to shrink properly */
+  max-height: 100%;
+  overflow: hidden; /* Right column itself shouldn't scroll, video container handles its aspect ratio */
+  justify-content: flex-start; /* Changed from center to align video to the top */
+}
+
+.modal-favorite-button {
+  margin: 0 0 10px 0;
+  width: 100%;
+}
+
+.tutorial-modal-body .nade-description {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  width: 100%; /* Ensure description takes full width of its column */
+  box-sizing: border-box; /* Include padding/border in width calculation */
+}
+
+.tutorial-modal-body .nade-description h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.comments-placeholder {
+  padding: 1rem;
+  border: 1px dashed var(--border-color, #ced4da);
+  border-radius: 8px;
+  text-align: center;
+  background-color: var(--background-color, #f8f9fa);
+  color: var(--text-secondary, #6c757d);
+  margin-top: auto; /* Push to bottom if space allows */
+}
+
+.comments-placeholder h3 {
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--text-color, #343a40);
+}
+
+/* Ensure video section and container are styled correctly */
+.video-section {
+  width: 100%;
+  /* height: 100%; */ /* Removed to allow height to be determined by content (video-container) */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Vertically center the video container within video-section */
+}
+
+/* video-container styles should already be defined globally, but ensure they are suitable here */
+/* Re-iterating for clarity within modal context if needed */
+.modal-right-column .video-container {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio, reverted from 42.86% */
+  background-color: #000; /* Black background for video area */
+  border-radius: 8px; /* Match modal rounding */
+  overflow: hidden; /* Ensure iframe corners are rounded */
+}
+
+.modal-right-column .video-container iframe {
+  position: absolute;
+  top: 0 !important;
+  left: 0;
+  width: 100%;
+  height: 100% !important;
+  border: none;
+  /* background-color: lime !important; */ /* Removed debugging background */
+}
+
+/* Favorite Button */
+.favorite-button {
+  display: block;
+  margin: 0 auto 1.5rem auto; /* Center and add margin below */
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background-color: var(--surface-color-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.favorite-button:hover {
+  background-color: var(--surface-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.favorite-button.is-favorite {
+  background-color: var(--primary-color-light, #e6f2ff); /* Світлий відтінок основного кольору */
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  font-weight: bold;
+}
+
+.favorite-button.is-favorite:hover {
+  background-color: var(--primary-color, #007bff); /* Темніший при наведенні, якщо вже в улюблених */
+  color: var(--text-color-on-primary, #fff);
+}
+
+.favorite-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+} 

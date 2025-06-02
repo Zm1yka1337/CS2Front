@@ -1,0 +1,33 @@
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 2rem;
+  background-color: var(--background-color);
+}
+
+.register-container {
+  background-color: var(--surface-color);
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.register-container h2 {
+  margin-bottom: 1.5rem;
+  color: var(--primary-color);
+  font-size: 2rem;
+}
+
+/* Використовуємо ті ж стилі для .form-group, .error-message, .btn, .btn-primary, .switch-form-text,
+   що й у LoginPage.css, щоб не дублювати. 
+   Якщо потрібні унікальні стилі, додайте їх тут. 
+   Для простоти, припускаємо, що основні стилі форм однакові.
+   В реальному проекті, можна винести спільні стилі форм в окремий файл.
+*/
+
+/* Якщо потрібно, тут можна додати специфічні стилі тільки для RegisterPage */ 

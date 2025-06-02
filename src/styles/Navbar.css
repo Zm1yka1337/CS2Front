@@ -1,0 +1,234 @@
+.navbar {
+  background-color: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.navbar-logo:hover {
+  color: var(--secondary-color);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-left: 1.5rem;
+}
+
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  position: relative;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: var(--text-color);
+  background-color: var(--surface-color-hover, rgba(0,0,0,0.05));
+}
+
+html[data-theme='dark'] .nav-links a:hover {
+  background-color: var(--surface-color-hover, rgba(255,255,255,0.08));
+}
+
+.nav-links a.active {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.nav-links a.active::after {
+  display: none;
+}
+
+.navbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-greeting {
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.navbar .btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.navbar .btn-login {
+  background-color: transparent;
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.navbar .btn-login:hover {
+  background-color: var(--primary-color-light, rgba(var(--primary-rgb), 0.1));
+  color: var(--primary-color);
+}
+
+.navbar .btn-register {
+  background-color: var(--primary-color);
+  color: var(--text-color-on-primary, #fff);
+}
+
+.navbar .btn-register:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.navbar .btn-logout {
+  background-color: var(--danger-color, #e53e3e);
+  color: #fff;
+}
+
+.navbar .btn-logout:hover {
+  background-color: var(--danger-color-dark, #c53030);
+}
+
+.theme-toggle-button {
+  background: none;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-toggle-button:hover {
+  background-color: var(--surface-color-hover, rgba(0,0,0,0.05));
+  border-color: var(--text-secondary);
+}
+
+html[data-theme='dark'] .theme-toggle-button:hover {
+  background-color: var(--surface-color-hover, rgba(255,255,255,0.08));
+}
+
+.theme-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  transition: opacity 0.3s ease;
+}
+
+.theme-icon.visible {
+  opacity: 1;
+}
+
+.theme-icon.hidden {
+  opacity: 0;
+}
+
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0 1rem;
+  }
+  
+  .navbar-logo {
+    font-size: 1.35rem;
+  }
+  
+  .nav-links {
+    gap: 0.5rem;
+    margin-left: 0.75rem;
+  }
+  .nav-links a {
+    padding: 0.4rem 0.5rem;
+  }
+
+  .navbar-auth .user-greeting {
+    display: none;
+  }
+
+  .navbar .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .navbar-controls {
+     gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-links a span {
+    display: none;
+  }
+  .nav-links a {
+    
+  }
+  .navbar-logo {
+    font-size: 1.2rem;
+  }
+}
+
+.nav-link-profile {
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.nav-link-profile:hover {
+  color: var(--text-color);
+  background-color: var(--surface-color-hover, rgba(0,0,0,0.05));
+}
+
+html[data-theme='dark'] .nav-link-profile:hover {
+  background-color: var(--surface-color-hover, rgba(255,255,255,0.08));
+}
+
+.nav-link-profile.active {
+  color: var(--primary-color);
+  font-weight: bold;
+} 
