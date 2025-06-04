@@ -1,11 +1,17 @@
 :root {
   --primary-color-light: #2563eb; /* Blue for light theme */
   --secondary-color-light: #1e40af;
-  --background-color-light: #ffffff; /* White background for light theme */
-  --surface-color-light: #f1f5f9; /* Light grey surface for light theme */
-  --text-color-light: #0f172a; /* Dark text for light theme */
-  --text-secondary-light: #475569;
-  --border-color-light: #cbd5e1;
+  --background-color-light: #f8f9fa; /* Світліший фон */
+  --surface-color-light: #fff; /* Білий для карток */
+  --text-color-light: #181818; /* Дуже темний текст */
+  --text-secondary-light: #444; /* Темно-сірий для другорядного тексту */
+  --border-color-light: #d1d5db;
+  --danger-color-light: #e53e3e;
+  --danger-color-transparent-light: rgba(229, 62, 62, 0.12);
+  --button-bg-light: #2563eb;
+  --button-text-light: #fff;
+  --button-bg-hover-light: #1e40af;
+  --link-color-light: #2563eb;
 
   --primary-color-dark: #60a5fa; /* Lighter blue for dark theme */
   --secondary-color-dark: #3b82f6;
@@ -25,6 +31,12 @@ html {
   --text-color: var(--text-color-light);
   --text-secondary: var(--text-secondary-light);
   --border-color: var(--border-color-light);
+  --danger-color: var(--danger-color-light);
+  --danger-color-transparent: var(--danger-color-transparent-light);
+  --button-bg: var(--button-bg-light);
+  --button-text: var(--button-text-light);
+  --button-bg-hover: var(--button-bg-hover-light);
+  --link-color: var(--link-color-light);
 }
 
 /* Dark theme variables */
@@ -67,17 +79,37 @@ body {
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+  color: var(--link-color);
+  text-decoration: underline;
 }
 
-button {
-  cursor: pointer;
-  border: none;
-  background: none;
-  font: inherit;
-  color: inherit;
+a:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
 }
+
+button, .button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border-radius: 6px;
+  padding: 0.5rem 1.2rem;
+  border: none;
+  transition: background 0.2s, color 0.2s;
+}
+button:hover, .button:hover {
+  background-color: var(--button-bg-hover);
+  color: #fff;
+}
+
+input, textarea, select {
+  background: #fff;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;

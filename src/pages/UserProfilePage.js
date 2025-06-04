@@ -40,6 +40,21 @@ function UserProfilePage() {
     return () => unsubscribe();
   }, [navigate]);
 
+  useEffect(() => {
+    if (currentUser) {
+      fetchUserProfileData(currentUser.uid);
+    }
+    // eslint-disable-next-line
+  }, [showNadeModal]);
+
+  useEffect(() => {
+    if (currentUser) {
+      getUserVideoViewStats(currentUser.uid).then(stats => {
+        setVideoViewStats(stats || {});
+      });
+    }
+  }, [currentUser, showNadeModal]);
+
   const fetchUserProfileData = async (userId) => {
     setLoading(true);
     setError('');
@@ -117,7 +132,7 @@ function UserProfilePage() {
     if (!currentUser) return;
     const result = await removeNadeFromFavorites(currentUser.uid, mapId, nadeId);
     if (result.success) {
-      setFavoriteNades(prevNades => prevNades.filter(n => !(n.mapId === mapId && n.nadeId === nadeId)));
+      fetchUserProfileData(currentUser.uid);
     } else {
       console.error("Помилка видалення з улюблених:", result.error);
       alert("Не вдалося видалити гранату з улюблених.");
@@ -156,6 +171,13 @@ function UserProfilePage() {
     } catch (e) {
       return 'Невідома дата';
     }
+  };
+
+  const getNadeTitleForViewStat = async (viewKey) => {
+    const [mapId, nadeId] = viewKey.split('_');
+    const mapData = await getAllNadeData(mapId);
+    const nadeData = mapData?.spots?.flatMap(s => s.nades).find(n => n.id === nadeId);
+    return nadeData ? `${nadeData.title} (Мапа: ${mapData.name})` : `Невідома граната (${viewKey})`;
   };
 
   const totalViews = Object.values(videoViewStats).reduce((sum, count) => sum + count, 0);
@@ -234,13 +256,6 @@ function UserProfilePage() {
     </div>
   );
 }
-
-const getNadeTitleForViewStat = async (viewKey) => {
-  const [mapId, nadeId] = viewKey.split('_');
-  const mapData = await getAllNadeData(mapId);
-  const nadeData = mapData?.spots?.flatMap(s => s.nades).find(n => n.id === nadeId);
-  return nadeData ? `${nadeData.title} (Мапа: ${mapData.name})` : `Невідома граната (${viewKey})`;
-};
 
 function AsyncNadeTitle({ viewKey }) {
   const [title, setTitle] = React.useState('Завантаження...');

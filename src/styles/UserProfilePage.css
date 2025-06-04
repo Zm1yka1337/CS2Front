@@ -1,3 +1,17 @@
+:root {
+  --background-color: #f8f9fa;
+  --surface-color: #fff;
+  --text-color: #222;
+  --text-secondary: #444;
+  --primary-color: #007bff;
+  --primary-color-light: #e6f2ff;
+  --border-color: #d1d5db;
+  --border-color-light: #e5e7eb;
+  --danger-color: #e53e3e;
+  --danger-color-transparent: rgba(229, 62, 62, 0.15);
+  --button-text-color: #fff;
+}
+
 .user-profile-page {
   display: flex;
   flex-direction: column;
@@ -49,7 +63,7 @@
 
 .profile-summary p {
   font-size: 1em;
-  color: var(--text-secondary);
+  color: var(--text-color);
   margin-bottom: 0.4rem;
   line-height: 1.5;
 }
@@ -62,9 +76,10 @@
 .profile-section {
   margin-bottom: 2.5rem;
   padding: 1.5rem;
-  background-color: var(--background-color);
+  background-color: var(--surface-color);
   border: 1px solid var(--border-color);
   border-radius: 8px;
+  color: var(--text-color);
 }
 
 .profile-section h2 {
@@ -157,7 +172,7 @@ html[data-theme='dark'] .favorite-item:hover {
 }
 
 .profile-section p {
-  color: var(--text-secondary);
+  color: var(--text-color);
   font-size: 1em;
 }
 
@@ -176,7 +191,7 @@ html[data-theme='dark'] .favorite-item:hover {
   align-items: center;
   padding: 2rem;
   font-size: 1.2em; /* Зменшено */
-  color: var(--text-secondary);
+  color: var(--text-color);
   min-height: 200px;
 }
 
@@ -229,7 +244,7 @@ html[data-theme='dark'] .favorite-item:hover {
 
 .video-stat-title {
   font-size: 1em;
-  color: var(--text-secondary);
+  color: var(--text-color);
   flex-grow: 1;
 }
 
