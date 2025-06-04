@@ -72,17 +72,18 @@ function NadeDetails() {
     setIsLoadingFavorite(false);
   };
 
-  useEffect(() => {
-    if (showTutorial && currentUser && nadeData) {
+  const handleOpenTutorial = () => {
+    setShowTutorial(true);
+    if (currentUser && nadeData) {
       recordNadeView(currentUser.uid, mapId, nadeId)
         .then(result => {
           if (result.success) {
-            console.log(`View for ${nadeId} recorded. New count: ${result.newViewCount}`);
+            console.log(`View for ${nadeId} recorded (from tutorial open). New count: ${result.newViewCount}`);
           }
         })
-        .catch(err => console.error("Failed to record view:", err));
+        .catch(err => console.error("Failed to record view (from tutorial open):", err));
     }
-  }, [showTutorial, currentUser, mapId, nadeId, nadeData]);
+  };
 
   if (!nadeData) return <div className="loading-container">Завантаження деталей гранати...</div>;
 
@@ -127,7 +128,7 @@ function NadeDetails() {
         </div>
 
         {videoUrl && !showTutorial && (
-          <button className="watch-tutorial-button" onClick={() => setShowTutorial(true)}>
+          <button className="watch-tutorial-button" onClick={handleOpenTutorial}>
             Watch Tutorial (Video & Instructions)
           </button>
         )}

@@ -23,7 +23,8 @@ import {
   query,
   orderBy,
   where,
-  deleteDoc
+  deleteDoc,
+  serverTimestamp
 } from "firebase/firestore";
 
 // Використовуємо імпортований app для отримання auth та db
@@ -156,44 +157,55 @@ export const getNadeDataForMap = async (mapId) => {
   }
 };
 
-// --- API для коментарів (якщо є відповідні ендпоінти на сервері) ---
-export const getNadeComments = async (mapId, nadeId) => {
-  try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/maps/${mapId}/comments/${nadeId}`);
-    if (!response.ok) throw new Error('Failed to fetch comments');
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching nade comments from API:", error);
-    return { error };
-  }
-};
+// --- API для коментарів (тепер через підколекцію map_comments у map_lineups) ---
 
+// Додати коментар
 export const addCommentToNade = async (mapId, nadeId, userId, userName, text) => {
   try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/maps/${mapId}/comments`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nadeId, userId, userName, text })
-    });
-    if (!response.ok) throw new Error('Failed to add comment');
-    return await response.json();
+    const commentData = {
+      nadeId,
+      userId,
+      userName,
+      text,
+      createdAt: serverTimestamp()
+    };
+    const docRef = await addDoc(collection(db, "map_lineups", mapId, "map_comments"), commentData);
+    return { success: true, comment: { ...commentData, id: docRef.id } };
   } catch (error) {
-    console.error("Error adding comment via API:", error);
+    console.error("Error adding comment to Firestore (subcollection):", error);
     return { error };
   }
 };
 
+// Отримати коментарі
+export const getNadeComments = async (mapId, nadeId) => {
+  try {
+    const q = query(
+      collection(db, "map_lineups", mapId, "map_comments"),
+      where("nadeId", "==", nadeId)
+    );
+    const querySnapshot = await getDocs(q);
+    const comments = [];
+    querySnapshot.forEach((doc) => {
+      comments.push({ id: doc.id, ...doc.data() });
+    });
+    // Сортуємо за датою (нові зверху)
+    comments.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    return comments;
+  } catch (error) {
+    console.error("Error fetching comments from Firestore (subcollection):", error);
+    return { error };
+  }
+};
+
+// Видалити коментар
 export const deleteNadeComment = async (mapId, commentId, userId) => {
   try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/maps/${mapId}/comments/${commentId}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId })
-    });
-    if (!response.ok) throw new Error('Failed to delete comment');
-    return await response.json();
+    // Можна додати перевірку userId, якщо потрібно
+    await deleteDoc(doc(db, "map_lineups", mapId, "map_comments", commentId));
+    return { success: true };
   } catch (error) {
-    console.error("Error deleting comment via API:", error);
+    console.error("Error deleting comment from Firestore (subcollection):", error);
     return { error };
   }
 };
