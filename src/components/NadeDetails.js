@@ -117,22 +117,22 @@ function NadeDetails() {
           </div>
 
           <div className="info-card">
-            <h3>Техніка</h3>
-            <p><strong>Тип:</strong> {type}</p>
-            <p><strong>Кидок:</strong> {technique}</p>
-            <p><strong>Складність:</strong> {difficulty}</p>
+            <h3>Technique</h3>
+            <p><strong>Type:</strong> {type}</p>
+            <p><strong>Throw:</strong> {technique}</p>
+            <p><strong>Difficulty:</strong> {difficulty}</p>
           </div>
 
           <div className="info-card">
-            <h3>Деталі</h3>
-            <p><strong>Тікрейт:</strong> {tickrate}</p>
-            <p><strong>Позиція:</strong> {spotName}</p>
+            <h3>Details</h3>
+            <p><strong>Tickrate:</strong> {tickrate}</p>
+            <p><strong>Spot:</strong> {spotName}</p>
           </div>
         </div>
 
         {videoUrl && !showTutorial && (
           <button className="watch-tutorial-button" onClick={handleOpenTutorial}>
-            Пидивитися туторіал (Video & Instructions)
+            Watch Tutorial (Video & Instructions)
           </button>
         )}
 
@@ -140,7 +140,7 @@ function NadeDetails() {
           <div className="tutorial-modal-overlay">
             <div className="tutorial-modal-content">
               <div className="tutorial-modal-header">
-                <h2>{title} - Туторіал</h2>
+                <h2>{title} - Tutorial</h2>
                 <button className="close-tutorial-button" onClick={() => setShowTutorial(false)}>
                   &times;
                 </button>
@@ -159,13 +159,13 @@ function NadeDetails() {
                     )}
                     {description && (
                       <div className="nade-description">
-                        <h3>Повна інструкція:</h3>
+                        <h3>Full Instructions:</h3>
                         <p>{description}</p>
                       </div>
                     )}
                     <div className="comments-placeholder">
-                      <h3>Коментарі</h3>
-                      <p><em>(Коментарі скоро поясляться)</em></p>
+                      <h3>Comments</h3>
+                      <p><em>(Comment section coming soon)</em></p>
                     </div>
                   </div>
                   <div className="modal-right-column">

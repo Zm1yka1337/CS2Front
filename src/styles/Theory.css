@@ -380,35 +380,36 @@
 }
 
 .theory-table {
+  background: transparent !important;
+  border-collapse: collapse;
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin: 2rem 0;
-  background-color: var(--background-color);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: var(--text-color);
 }
 
-.theory-table th {
-  background-color: var(--primary-color);
-  color: white;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 1.5rem;
-  font-size: 1.1rem;
-}
-
+.theory-table th,
 .theory-table td {
-  padding: 1.2rem 1.5rem;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  border-bottom: 1px solid var(--border-color);
+  background: transparent !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color);
 }
 
-.theory-table tr:last-child td {
-  border-bottom: none;
+.theory-table tr {
+  background: transparent !important;
+}
+
+.theory-table tr:hover td {
+  background: var(--surface-color, #fff) !important;
+  color: var(--text-color) !important;
+}
+
+/* Для світлої теми прибираю override */
+html:not([data-theme='dark']) .theory-table,
+html:not([data-theme='dark']) .theory-table th,
+html:not([data-theme='dark']) .theory-table td,
+html:not([data-theme='dark']) .theory-table tr,
+html:not([data-theme='dark']) .theory-table tr:hover td {
+  background: transparent !important;
+  color: var(--text-color) !important;
 }
 
 .info-box,

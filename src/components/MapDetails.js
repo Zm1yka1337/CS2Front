@@ -438,7 +438,7 @@ function MapDetails() {
   };
 
   // Main render
-  if (!map) return <div>Карту не знайдено</div>;
+  if (!map) return <div>Map not found</div>;
 
   const filteredNades = map.spots.flatMap(spot => 
     spot.nades.filter(nade => 
@@ -500,15 +500,15 @@ function MapDetails() {
             <p className="nade-short-description">{selectedNade.description.substring(0, 100)}{selectedNade.description.length > 100 ? '...' : ''}</p>
             <div className="nade-info-grid">
               <div className="info-item">
-                <span>Складність:</span>
+                <span>Difficulty:</span>
                 <span>{selectedNade.difficulty}</span>
               </div>
               <div className="info-item">
-                <span>техніка:</span>
+                <span>Technique:</span>
                 <span>{selectedNade.technique}</span>
               </div>
               <div className="info-item">
-                <span>Тікрейт:</span>
+                <span>Tickrate:</span>
                 <span>{selectedNade.tickrate}</span>
               </div>
             </div>
@@ -536,7 +536,7 @@ function MapDetails() {
                     )}
                   </div>
                   <div className="tutorial-right-column">
-                    <h3 className="full-description-header">Повна інструкція:</h3>
+                    <h3 className="full-description-header">Full Instructions:</h3>
                     <p className="nade-full-description">{selectedNade.description}</p>
                     
                     <div className="actions-and-comments-placeholder">
@@ -566,7 +566,7 @@ function MapDetails() {
                             </button>
                           </form>
                         ) : (
-                          <p><em>Увійдіть, щоб залишити коментар.</em></p>
+                          <p><em>Please log in to leave a comment.</em></p>
                         )}
                         <div className="comments-list">
                           {comments.length > 0 ? (
@@ -586,13 +586,13 @@ function MapDetails() {
                                     onClick={() => handleDeleteComment(comment.id)}
                                     className="delete-comment-button"
                                   >
-                                    Видалити
+                                    Delete
                                   </button>
                                 )}
                               </div>
                             ))
                           ) : (
-                            <p><em>Поки що немає коментарів. Будьте першим, хто залишить коментар!</em></p>
+                            <p><em>No comments yet. Be the first to comment!</em></p>
                           )}
                         </div>
                       </div>

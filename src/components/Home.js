@@ -54,7 +54,7 @@ function Home() {
 
   return (
     <div className="home">
-      <h1>CS2 траєкторія гранат</h1>
+      <h1>CS2 Grenade Lineups</h1>
       {success && <div style={{color: 'green', marginBottom: '1rem'}}>Дані успішно імпортовано!</div>}
       {error && <div style={{color: 'red', marginBottom: '1rem'}}>{error}</div>}
       {mapsLoading ? (
@@ -84,7 +84,7 @@ function Home() {
                 </div>
               </div>
             </Link>
-          )) : <div>Немає доступних карт</div>}
+          )) : <div>No maps available</div>}
         </div>
       )}
     </div>

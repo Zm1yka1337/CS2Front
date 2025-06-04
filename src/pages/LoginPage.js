@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword, signInWithGoogle } from '../services/firebaseService';
 import '../styles/LoginPage.css';
-import { Link } from 'react-router-dom';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleEmailLogin = async (e) => {
@@ -19,7 +17,6 @@ function LoginPage() {
       return;
     }
     try {
-      setLoading(true);
       const result = await signInWithEmailAndPassword(email, password);
       if (result.error) {
         let errorMessage = "Помилка входу. ";
@@ -50,15 +47,12 @@ function LoginPage() {
     } catch (err) {
       setError('Не вдалося увійти. Спробуйте ще раз.');
       console.error("Login error:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
     setError('');
     try {
-      setLoading(true);
       const result = await signInWithGoogle();
       if (result.error) {
         setError(result.error.message || 'Помилка входу через Google.');
@@ -68,43 +62,47 @@ function LoginPage() {
     } catch (err) {
       setError('Не вдалося увійти через Google. Спробуйте ще раз.');
       console.error("Google login error:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <div className="login-page">
       <div className="login-container">
-        <h1>Вхід</h1>
-        {error && <div className="error-message">{error}</div>}
-        <form onSubmit={handleEmailLogin} className="login-form">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <label htmlFor="password">Пароль</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit" className="btn btn-login" disabled={loading}>
-            {loading ? 'Вхід...' : 'Увійти'}
-          </button>
+        <h2>Вхід</h2>
+        <form onSubmit={handleEmailLogin}>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Ваш email"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Пароль</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Ваш пароль"
+              required
+            />
+          </div>
+          {error && <p className="error-message">{error}</p>}
+          <button type="submit" className="btn btn-primary">Увійти</button>
         </form>
-        <button className="btn btn-google" onClick={handleGoogleLogin} disabled={loading}>
+        <p className="or-divider"><span>АБО</span></p>
+        <button onClick={handleGoogleLogin} className="btn btn-google">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" />
           Увійти через Google
         </button>
-        <div className="register-link">
-          Ще не маєте акаунту? <Link to="/register">Зареєструватися</Link>
-        </div>
+        <p className="switch-form-text">
+          Немає акаунту? <a href="/register">Зареєструватися</a>
+        </p>
       </div>
     </div>
   );
