@@ -985,3 +985,22 @@
     min-width: 140px;
   }
 }
+
+html:not([data-theme='dark']) .theory-table {
+  background-color: #fff;
+  color: #181818;
+  border: 1px solid #d1d5db;
+}
+html:not([data-theme='dark']) .theory-table th {
+  background-color: #2563eb;
+  color: #fff;
+  border-bottom: 2px solid #d1d5db;
+}
+html:not([data-theme='dark']) .theory-table td {
+  background-color: #fff;
+  color: #181818;
+  border-bottom: 1px solid #e5e7eb;
+}
+html:not([data-theme='dark']) .theory-table tr:hover td {
+  background-color: #f3f6fa;
+}

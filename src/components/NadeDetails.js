@@ -74,7 +74,10 @@ function NadeDetails() {
 
   const handleOpenTutorial = () => {
     setShowTutorial(true);
-    if (currentUser && nadeData) {
+  };
+
+  useEffect(() => {
+    if (showTutorial && currentUser && nadeData) {
       recordNadeView(currentUser.uid, mapId, nadeId)
         .then(result => {
           if (result.success) {
@@ -83,7 +86,7 @@ function NadeDetails() {
         })
         .catch(err => console.error("Failed to record view (from tutorial open):", err));
     }
-  };
+  }, [showTutorial, currentUser, nadeData, mapId, nadeId]);
 
   if (!nadeData) return <div className="loading-container">Завантаження деталей гранати...</div>;
 

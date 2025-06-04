@@ -7,7 +7,7 @@ import {
   getUserFavoriteNades, 
   removeNadeFromFavorites,
   getUserVideoViewStats,
-  getAllNadeData
+  getNadeDataForMap
 } from '../services/firebaseService';
 import '../styles/UserProfilePage.css';
 import NadeDetailsModal from '../components/NadeDetailsModal';
@@ -18,7 +18,7 @@ const db = getFirestore(app);
 // Винесена функція для отримання назви гранати для статистики переглядів
 export const getNadeTitleForViewStat = async (viewKey) => {
   const [mapId, nadeId] = viewKey.split('_');
-  const mapData = await getAllNadeData(mapId);
+  const mapData = await getNadeDataForMap(mapId);
   const nadeData = mapData?.spots?.flatMap(s => s.nades).find(n => n.id === nadeId);
   return nadeData ? `${nadeData.title} (Мапа: ${mapData.name})` : `Невідома граната (${viewKey})`;
 };
@@ -78,7 +78,7 @@ function UserProfilePage() {
         if (profileData.favorites && profileData.favorites.length > 0) {
             const detailedFavorites = [];
             for (const fav of profileData.favorites) {
-                const mapData = await getAllNadeData(fav.mapId);
+                const mapData = await getNadeDataForMap(fav.mapId);
                 const nadeData = mapData?.spots?.flatMap(s => s.nades).find(n => n.id === fav.nadeId);
                 if (nadeData) {
                   detailedFavorites.push({
