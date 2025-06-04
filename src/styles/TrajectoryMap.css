@@ -1,50 +1,154 @@
 .trajectory-map-container {
-  position: relative; /* Для абсолютного позиціонування SVG всередині */
-  width: 100%;       /* Займає всю доступну ширину */
-  max-width: 700px;  /* Обмеження максимальної ширини, щоб не було занадто великим на ПК */
-  margin: 1rem auto; /* Центрування контейнера */
-  border: 1px solid var(--border-color, #ccc);
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%; /* Квадратний контейнер */
+  background-color: var(--surface-color, #1a1a1a);
   border-radius: 8px;
-  overflow: hidden; /* Щоб кути були заокруглені разом із зображенням */
+  overflow: hidden;
 }
 
-.trajectory-map-container.error {
-  padding: 1rem;
-  text-align: center;
-  color: var(--text-secondary);
-  background-color: var(--surface-color-hover);
-}
-
-.map-background-image {
-  display: block;    /* Прибирає зайвий відступ під зображенням */
-  width: 100%;       /* Зображення завжди заповнює контейнер по ширині */
-  height: auto;      /* Висота автоматично підлаштовується для збереження пропорцій */
-}
-
-.trajectory-svg-overlay {
-  position: absolute; /* Накладається поверх зображення */
+.map-wrapper {
+  position: absolute;
   top: 0;
   left: 0;
-  width: 100%;       /* SVG займає ті ж розміри, що й контейнер (і зображення) */
+  width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.trajectory-line {
-  /* Стилі для лінії (stroke, strokeWidth і т.д.) задаються інлайново в SVG,
-     але можна перевизначити або додати тут, якщо потрібно */
-  vector-effect: non-scaling-stroke; /* Зберігає товщину лінії при масштабуванні SVG (не завжди підтримується, але корисно) */
+.map-image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
 }
 
-/* Стилі для маркерів, якщо вони додані */
-.trajectory-svg-overlay circle {
-  /* Можна додати стилі, наприклад, для анімації або ефектів при наведенні */
+.trajectory-overlay {
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px rgba(248, 0, 0, 0.5));
+}
+
+/* Стилі для траєкторій */
+.trajectory-path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke-width 0.3s ease;
+}
+
+.trajectory-path.jump-throw {
+  stroke-dasharray: 5, 5;
+}
+
+/* Стилі для маркерів */
+.marker-circle {
+  stroke: #000;
+  transition: r 0.3s ease;
+}
+
+.marker-circle.start {
+  fill: rgba(0, 255, 0, 0.7);
+}
+
+.marker-circle.end {
+  fill: rgba(255, 0, 0, 0.7);
+}
+
+.marker-inner {
+  fill: rgba(255, 255, 255, 0.7);
+}
+
+/* Стилі для великих екранів (> 1200px) */
+.trajectory-map-container.screen-large {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Стилі для середніх екранів (910px - 1200px) */
+@media (max-width: 1200px) {
+  .trajectory-map-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .trajectory-path.screen-medium {
+    /* Фіксована товщина для середніх екранів */
+    stroke-width: 3px !important;
+  }
+
+  .marker-circle.screen-medium {
+    /* Фіксований розмір маркерів для середніх екранів */
+    r: 8px !important;
+  }
+
+  .marker-inner.screen-medium {
+    r: 4px !important;
+  }
+}
+
+/* Стилі для малих екранів (≤ 910px) */
+@media (max-width: 910px) {
+  .trajectory-map-container.screen-small {
+    min-height: 300px;
+    border-radius: 4px;
+  }
+
+  .trajectory-path.screen-small {
+    /* Фіксована товщина для малих екранів */
+    stroke-width: 2px !important;
+  }
+
+  .marker-circle.screen-small {
+    /* Фіксований розмір маркерів для малих екранів */
+    r: 6px !important;
+  }
+
+  .marker-inner.screen-small {
+    r: 3px !important;
+  }
+
+  /* Забезпечуємо, що точки завжди видно */
+  .trajectory-marker.screen-small {
+    transform-origin: center;
+    transform: scale(1) !important;
+  }
+}
+
+/* Забезпечення фіксованого позиціонування точок */
+.trajectory-group {
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+
+/* Додаткові стилі для кращої видимості на малих екранах */
+@media (max-width: 480px) {
+  .trajectory-map-container.screen-small {
+    min-height: 250px;
+  }
+
+  .trajectory-path.screen-small {
+    stroke-width: 1.5px !important;
+  }
+
+  .marker-circle.screen-small {
+    r: 4px !important;
+  }
+
+  .marker-inner.screen-small {
+    r: 2px !important;
+  }
 }
 
 /* Стилі для діагностичного блоку */
 .trajectory-map-outer-container {
   width: 100%;
-  max-width: 700px; /* Синхронізуйте з max-width для .trajectory-map-container */
-  margin: 1rem auto; /* Синхронізуйте з margin для .trajectory-map-container */
+  max-width: 100%; /* Змінено для повної адаптивності */
+  margin: 1rem auto;
+  padding: 0 1rem; /* Додано відступи по боках */
 }
 
 .trajectory-debug-info {
@@ -66,4 +170,44 @@
 .trajectory-debug-info p {
   margin: 4px 0;
   word-break: break-all;
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+  .trajectory-map-container {
+    border-radius: 4px;
+  }
+
+  .trajectory-path {
+    stroke-width: 0.75%; /* Трохи товщі лінії для мобільних */
+  }
+
+  .marker-circle {
+    r: 2%; /* Більші маркери для мобільних */
+  }
+
+  .marker-inner {
+    r: 1%;
+  }
+}
+
+@media (max-width: 480px) {
+  .trajectory-map-container {
+    min-height: 250px;
+  }
+}
+
+/* Підтримка темної теми */
+@media (prefers-color-scheme: dark) {
+  .trajectory-map-container {
+    background-color: var(--surface-color-dark, #121212);
+  }
+
+  .marker-circle {
+    stroke: #fff;
+  }
+
+  .trajectory-overlay {
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
+  }
 } 

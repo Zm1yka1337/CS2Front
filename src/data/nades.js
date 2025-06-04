@@ -9,79 +9,106 @@ export const maps = [
       {
         id: 'd2-a-site',
         name: 'A Site',
-        position: { x: 65, y: 35 },
+        position: { x:68, y: 16 },
         nades: [
           {
             id: 'd2-a-ct-smoke',
             type: 'smoke',
             team: 'T',
-            title: 'CT Smoke from Long',
-            description: 'Stand in the corner at Long, aim at the top of the building, jump throw',
-            startPosition: { x: 70, y: 45 },
-            endPosition: { x: 55, y: 20 },
+            title: 'CT A smoke',
+            description: 'Stand near the blue container, aim at the line-up between the houses, throw',
+            trajectory: [
+              { x: 765, y: 490 },  // Start position
+              { x: 820, y: 245 }   // End position
+            ],
+            difficulty: 'Easy',
+            tickrate: '64/128',
+            technique: 'Standing throw',
+            videoUrl: 'https://www.youtube.com/embed/7Q8N_y92GbQ'
+          },
+          {
+            id: 'd2-a-box-smoke',
+            type: 'smoke',
+            team: 'CT',
+            title: 'Box Smoke',
+            description: 'Stand in the corner under the platform, aim for the top of the roof, jump throw',
+            trajectory: [
+              { x: 790, y: 195 },  // Start position
+              { x: 710, y: 560 }   // End position
+            ],
             difficulty: 'Easy',
             tickrate: '64/128',
             technique: 'Jump throw',
-            videoUrl: 'https://www.youtube.com/embed/26sdztDu6wA'
+            videoUrl: 'https://www.youtube.com/embed/-ae_l5nKVpg'
           },
           {
-            id: 'd2-a-cross-smoke',
+            id: 'd2-mid-door-smoke',
             type: 'smoke',
-            team: 'CT',
-            title: 'Cross Smoke',
-            description: 'Stand at pit, aim at the antenna, regular throw',
-            startPosition: { x: 85, y: 50 },
-            endPosition: { x: 60, y: 35 },
-            difficulty: 'Medium',
+            team: 'T',
+            title: 'Test Long Smoke',
+            description: 'Mid door smoke',
+            difficulty: 'Easy',
             tickrate: '64/128',
             technique: 'Standing throw',
-            videoUrl: 'https://example.com/video2'
+            videoUrl: 'https://www.youtube.com/embed/WBDdtrhMDMQ',
+            trajectory: [
+              { x:465, y: 885 },  // Start position
+              { x: 470, y: 370 }   // End position
+            ],
+            name: 'Test Long Smoke'
           },
           {
-            id: 'd2-a-long-smoke',
-            type: 'smoke',
+            id: 'd2-long-flash',
+            type: 'flash',
             team: 'CT',
-            title: 'Long Corner Smoke',
-            description: 'Stand at blue container, aim between the wires, running throw',
-            startPosition: { x: 70, y: 65 },
-            endPosition: { x: 80, y: 40 },
-            difficulty: 'Medium',
+            title: 'Long flash',
+            description: 'Flash for pick long',
+            difficulty: 'Easy',
             tickrate: '64/128',
-            technique: 'Running throw',
-            videoUrl: 'https://example.com/video3'
+            technique: 'Standing throw',
+            videoUrl: 'https://www.youtube.com/embed/1aHpihQ6BC4&ab',
+            trajectory: [
+              { x: 850, y: 275 },  // Start position
+              { x: 865, y: 470 }   // End position
+            ],
+            name: 'Test Long Smoke'
           }
         ]
       },
       {
         id: 'd2-b-site',
         name: 'B Site',
-        position: { x: 30, y: 45 },
+        position: { x: 32, y: 13 },
         nades: [
           {
             id: 'd2-b-window-smoke',
             type: 'smoke',
             team: 'T',
             title: 'Window Smoke',
-            description: 'Stand at tunnel, aim at the top corner, jump throw',
-            startPosition: { x: 20, y: 55 },
-            endPosition: { x: 35, y: 40 },
-            difficulty: 'Medium',
-            tickrate: '64/128',
-            technique: 'Jump throw',
-            videoUrl: 'https://example.com/video4'
-          },
-          {
-            id: 'd2-b-door-smoke',
-            type: 'smoke',
-            team: 'T',
-            title: 'B Door Smoke',
-            description: 'Stand at the car, aim at the top of the wall, regular throw',
-            startPosition: { x: 15, y: 60 },
-            endPosition: { x: 25, y: 45 },
+            description: 'Stand in the corner and aim at the dot like in the video, jump throw',
+            trajectory: [
+              { x: 265, y: 620 },  // Start position
+              { x: 265, y: 130 }   // End position
+            ],
             difficulty: 'Easy',
             tickrate: '64/128',
-            technique: 'Standing throw',
-            videoUrl: 'https://example.com/video5'
+            technique: 'Jump throw',
+            videoUrl: 'https://www.youtube.com/embed/rKXpN-gq22Q'
+          },
+          {
+           id: 'd2-b-window-smoke',
+            type: 'smoke',
+            team: 'T',
+            title: 'Door Smoke',
+            description: 'Stand in the corner and aim at the dot like in the video, jump throw',
+            trajectory: [
+              { x: 265, y: 620 },  // Start position
+              { x: 265, y: 220 }   // End position
+            ],
+            difficulty: 'Easy',
+            tickrate: '64/128',
+            technique: 'Jump throw',
+            videoUrl: 'https://www.youtube.com/embed/rKXpN-gq22Q'
           }
         ]
       }
@@ -100,17 +127,64 @@ export const maps = [
         position: { x: 70, y: 30 },
         nades: [
           {
+            id: 'mirage-mid-smoke',
+            type: 'smoke',
+            team: 'T',
+            title: 'Mid Smoke',
+            description: 'Stand at T base dump, aim at the window corner, jump throw + D',
+            trajectory: [
+              { x: 935, y: 325 },  // Start position
+              { x: 410, y: 465 }   // End position
+            ],
+            difficulty: 'Medium',
+            tickrate: '64/128',
+            technique: 'Jump throw + D',
+            videoUrl: 'https://www.youtube.com/embed/WGFYA8RexbA'
+          },
+          {
             id: 'mirage-stairs-smoke',
             type: 'smoke',
             team: 'T',
             title: 'Stairs Smoke',
-            description: 'Stand at T ramp, aim at the window corner, jump throw',
-            startPosition: { x: 60, y: 45 },
-            endPosition: { x: 75, y: 25 },
+            description: 'Stand at T ramp, aim at the same angle, jump throw',
+            trajectory: [
+              { x: 810, y: 645 },  // Start position
+              { x: 550, y: 660 }   // End position
+            ],
             difficulty: 'Medium',
             tickrate: '64/128',
             technique: 'Jump throw',
-            videoUrl: 'https://example.com/video3'
+            videoUrl: 'https://www.youtube.com/embed/lKBl4yj7mKk'
+          },
+          {
+            id: 'mirage-under-stairs-smoke',
+            type: 'smoke',
+            team: 'T',
+            title: 'Under stairs Smoke',
+            description: 'Stand at T ramp, aim at the same angle, jump throw',
+            trajectory: [
+              { x: 810, y: 645 },  // Start position
+              { x: 510, y: 660 }   // End position
+            ],
+            difficulty: 'Medium',
+            tickrate: '64/128',
+            technique: 'Jump throw',
+            videoUrl: 'https://www.youtube.com/embed/lKBl4yj7mKk'
+          },
+          {
+            id: 'mirage-connector-molotov',
+            type: 'molotov',
+            team: 'T',
+            title: 'Connector molotov',
+            description: 'Stand at top mid angel, aim at the same angle, jump throw',
+            trajectory: [
+              { x: 675, y: 390 },  // Start position
+              { x: 510, y: 520 }   // End position
+            ],
+            difficulty: 'Easy',
+            tickrate: '64/128',
+            technique: 'Jump throw',
+            videoUrl: 'https://www.youtube.com/embed/KnZbfR5bLMI'
           }
         ]
       }

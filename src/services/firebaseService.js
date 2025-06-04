@@ -132,40 +132,69 @@ export const onAuthStatusChanged = (callback) => {
   });
 };
 
-// --- Функції для роботи з Cloud Firestore (гранати) ---
+// --- API для карт і лайн-апів ---
 
 export const getAllNadeData = async () => {
   try {
-    const lineupsCollectionRef = collection(db, 'map_lineups');
-    const querySnapshot = await getDocs(lineupsCollectionRef);
-    const allData = {};
-    querySnapshot.forEach((doc) => {
-      allData[doc.id] = doc.data();
-    });
-    if (Object.keys(allData).length === 0) {
-      console.log("No nade data available in Firestore's map_lineups collection");
-      return null;
-    }
-    return allData;
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/maps`);
+    if (!response.ok) throw new Error('Failed to fetch maps');
+    return await response.json();
   } catch (error) {
-    console.error("Error fetching all nade data from Firestore:", error);
-    return { error }; // Повертаємо об'єкт з помилкою для кращої обробки
+    console.error("Error fetching all nade data from API:", error);
+    return { error };
   }
 };
 
 export const getNadeDataForMap = async (mapId) => {
   try {
-    const mapDocRef = doc(db, "map_lineups", mapId);
-    const docSnap = await getDoc(mapDocRef);
-    if (docSnap.exists()) {
-      return docSnap.data();
-    } else {
-      console.log(`No data found for map ${mapId} in Firestore's map_lineups collection`);
-      return null;
-    }
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/maps/${mapId}`);
+    if (!response.ok) throw new Error('Failed to fetch map');
+    return await response.json();
   } catch (error) {
-    console.error(`Error fetching nade data for map ${mapId} from Firestore:`, error);
-    return { error }; // Повертаємо об'єкт з помилкою
+    console.error(`Error fetching nade data for map ${mapId} from API:`, error);
+    return { error };
+  }
+};
+
+// --- API для коментарів (якщо є відповідні ендпоінти на сервері) ---
+export const getNadeComments = async (mapId, nadeId) => {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/maps/${mapId}/comments/${nadeId}`);
+    if (!response.ok) throw new Error('Failed to fetch comments');
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching nade comments from API:", error);
+    return { error };
+  }
+};
+
+export const addCommentToNade = async (mapId, nadeId, userId, userName, text) => {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/maps/${mapId}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nadeId, userId, userName, text })
+    });
+    if (!response.ok) throw new Error('Failed to add comment');
+    return await response.json();
+  } catch (error) {
+    console.error("Error adding comment via API:", error);
+    return { error };
+  }
+};
+
+export const deleteNadeComment = async (mapId, commentId, userId) => {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/maps/${mapId}/comments/${commentId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId })
+    });
+    if (!response.ok) throw new Error('Failed to delete comment');
+    return await response.json();
+  } catch (error) {
+    console.error("Error deleting comment via API:", error);
+    return { error };
   }
 };
 
@@ -314,95 +343,5 @@ export const getUserVideoViewStats = async (userId) => {
   } catch (error) {
     console.error("Error fetching user video view stats:", error);
     return { error }; 
-  }
-};
-
-// --- Функції для коментарів до гранат ---
-
-// Додавання коментаря до гранати
-export const addCommentToNade = async (mapId, nadeId, userId, userName, text) => {
-  if (!mapId || !nadeId || !userId || !userName || !text) {
-    console.error("addCommentToNade: Відсутні необхідні параметри.");
-    return { error: "Відсутні необхідні параметри для додавання коментаря." };
-  }
-  try {
-    const commentsCollectionRef = collection(db, "map_lineups", mapId, "map_comments");
-    
-    const newComment = {
-      nadeId,
-      userId,
-      userName,
-      text,
-      createdAt: Timestamp.fromDate(new Date()),
-    };
-
-    const docRef = await addDoc(commentsCollectionRef, newComment);
-    console.log("Comment added to map_comments with ID: ", docRef.id);
-    return { success: true, commentId: docRef.id, comment: {id: docRef.id, ...newComment} };
-  } catch (error) {
-    console.error("Error adding comment to nade (in map_comments):", error);
-    return { error: "Помилка під час додавання коментаря." };
-  }
-};
-
-// Отримання коментарів для гранати
-export const getNadeComments = async (mapId, nadeId) => {
-  if (!mapId || !nadeId) {
-    console.error("getNadeComments: Відсутні mapId або nadeId.");
-    return { error: "Відсутні ідентифікатори для завантаження коментарів." };
-  }
-  try {
-    const commentsCollectionRef = collection(db, "map_lineups", mapId, "map_comments");
-    
-    const q = query(
-      commentsCollectionRef, 
-      where("nadeId", "==", nadeId), 
-      orderBy("createdAt", "desc")
-    );
-    
-    const querySnapshot = await getDocs(q);
-    const comments = [];
-    querySnapshot.forEach((doc) => {
-      comments.push({ id: doc.id, ...doc.data() });
-    });
-    
-    return comments; 
-  } catch (error) {
-    console.error("Error fetching nade comments (from map_comments):", error);
-    if (error.code === 'failed-precondition') {
-      console.warn("Firestore query failed. This might be due to a missing composite index. See instructions.");
-      return { error: "Query failed, missing index?", needsIndex: true, comments: [] }; 
-    }
-    return []; 
-  }
-};
-
-// Видалення коментаря до гранати
-export const deleteNadeComment = async (mapId, commentId, userId) => {
-  if (!mapId || !commentId || !userId) {
-    console.error("deleteNadeComment: Відсутні mapId, commentId або userId.");
-    return { error: "Відсутні необхідні параметри для видалення коментаря." };
-  }
-  try {
-    const commentDocRef = doc(db, "map_lineups", mapId, "map_comments", commentId);
-    const commentSnap = await getDoc(commentDocRef);
-
-    if (!commentSnap.exists()) {
-      console.error("deleteNadeComment: Comment not found.");
-      return { error: "Коментар не знайдено." };
-    }
-
-    const commentData = commentSnap.data();
-    if (commentData.userId !== userId) {
-      console.warn("deleteNadeComment: User is not authorized to delete this comment.");
-      return { error: "Ви не можете видалити цей коментар." };
-    }
-
-    await deleteDoc(commentDocRef);
-    console.log(`Comment ${commentId} deleted successfully by user ${userId} from map ${mapId}.`);
-    return { success: true };
-  } catch (error) {
-    console.error("Error deleting nade comment:", error);
-    return { error: "Помилка під час видалення коментаря." };
   }
 }; 

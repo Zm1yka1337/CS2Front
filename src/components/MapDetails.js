@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { maps, nadeTypes } from '../data/nades';
+import { nadeTypes } from '../data/nades';
 import '../styles/MapDetails.css';
 import { getAuth } from 'firebase/auth';
 import { 
@@ -9,17 +9,17 @@ import {
   getUserFavoriteNades,
   addCommentToNade,
   getNadeComments,
-  deleteNadeComment
+  deleteNadeComment,
+  getNadeDataForMap
 } from '../services/firebaseService';
 
-// Re-adding direct icon imports
+// Icon imports
 import smokeTIcon from '../assets/endGrenadeIcons/SmokeT.png';
 import smokeCtIcon from '../assets/endGrenadeIcons/SmokeCT.png';
-import flashIcon from '../assets/endGrenadeIcons/flash.png'; // Assuming flash.png for both teams
-import molotovIcon from '../assets/endGrenadeIcons/molotov.png'; // Assuming molotov.png for both teams
-import heIcon from '../assets/endGrenadeIcons/he.png'; // Assuming he.png for both teams
+import flashIcon from '../assets/endGrenadeIcons/flash.png';
+import molotovIcon from '../assets/endGrenadeIcons/molotov.png';
+import heIcon from '../assets/endGrenadeIcons/he.png';
 
-// Update grenadeIcons object to use imported variables
 const grenadeIcons = {
   smoke: {
     T: smokeTIcon,
@@ -27,15 +27,15 @@ const grenadeIcons = {
   },
   flash: {
     T: flashIcon,
-    CT: flashIcon // Use the same flashIcon for CT, or import a specific one if available
+    CT: flashIcon
   },
   molotov: {
     T: molotovIcon,
-    CT: molotovIcon // Use the same molotovIcon for CT, or import a specific one
+    CT: molotovIcon
   },
   he: {
     T: heIcon,
-    CT: heIcon // Use the same heIcon for CT, or import a specific one
+    CT: heIcon
   }
 };
 
@@ -46,73 +46,63 @@ function MapDetails() {
   const [selectedType, setSelectedType] = useState('all');
   const [selectedNade, setSelectedNade] = useState(null);
   const [isTutorialDetailExpanded, setIsTutorialDetailExpanded] = useState(false);
+  const [mapDimensions, setMapDimensions] = useState({ width: 0, height: 0, scale: 1, offsetX: 0, offsetY: 0 });
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [map, setMap] = useState(null);
+  
+  const mapContainerRef = useRef(null);
+  const mapImageRef = useRef(null);
+  const textareaRef = useRef(null);
 
-  // Нові стани для функціоналу "Улюблене"
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
-
-  // State for comments
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [selectedTrajectory, setSelectedTrajectory] = useState(null);
 
-  const textareaRef = useRef(null);
+  // Utility functions
+  const convertToScreenCoordinates = (x, y) => {
+    if (!mapDimensions.scale) return { x: 0, y: 0 };
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
-      setCurrentUser(user);
-    });
-    return () => unsubscribe();
-  }, []);
+    // Convert from map coordinates (0-1024) to screen coordinates
+    // Normalize coordinates to 0-1 range first, then scale to container size
+    const normalizedX = x / 1024;
+    const normalizedY = y / 1024;
+    
+    const screenX = (normalizedX * mapDimensions.width) + mapDimensions.offsetX;
+    const screenY = (normalizedY * mapDimensions.height) + mapDimensions.offsetY;
 
-  // Fetch comments when selectedNade or mapId changes
-  const fetchComments = useCallback(async () => {
-    if (selectedNade && mapId) {
-      console.log("[MapDetails] fetchComments: Fetching for", { mapId, nadeId: selectedNade.id });
-      const result = await getNadeComments(mapId, selectedNade.id);
-      console.log("[MapDetails] fetchComments: Result from getNadeComments:", result);
+    return { x: screenX, y: screenY };
+  };
 
-      if (result && result.needsIndex) {
-        console.error("Firestore Error: Missing composite index for comments query.", result.error);
-        setComments([]); 
-      } else if (Array.isArray(result)) {
-        console.log("[MapDetails] fetchComments: Setting comments state with:", result);
-        setComments(result);
-      } else if (result && result.error) {
-        console.error("Error fetching comments:", result.error);
-        // Decide if you want to clear comments or leave them as is on error
-        // setComments([]); 
-      } else {
-        console.error("Unexpected result when fetching comments:", result);
-        setComments([]);
-      }
-    } else {
-      console.log("[MapDetails] fetchComments: No selectedNade or mapId, clearing comments.");
-      setComments([]);
-    }
-  }, [selectedNade, mapId]);
+  const createTrajectoryPath = (points) => {
+    if (!points || points.length < 2 || !mapDimensions.scale) return '';
 
-  useEffect(() => {
-    if (!selectedNade) {
-      setIsTutorialDetailExpanded(false);
-      setIsFavorite(false);
-      setComments([]); // Clear comments when nade is deselected
+    const start = points[0];
+    const end = points[points.length - 1];
+
+    const startPos = convertToScreenCoordinates(start.x, start.y);
+    const endPos = convertToScreenCoordinates(end.x, end.y);
+
+    // Create a simple line from start to end
+    return `M ${startPos.x} ${startPos.y} L ${endPos.x} ${endPos.y}`;
+  };
+
+  // Event handlers
+  const handleNadeClick = (nade) => {
+    if (selectedNade?.id === nade.id) {
       return;
     }
-    if (currentUser && selectedNade) {
-      checkIfFavorite(currentUser.uid, mapId, selectedNade.id);
-    }
-    fetchComments(); // Fetch comments for the selected nade
-  }, [selectedNade, currentUser, mapId, fetchComments]);
+    setSelectedNade(nade);
+    setIsTutorialDetailExpanded(false);
+  };
 
-  // Auto-grow textarea - MOVED HERE
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'; 
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; 
-    }
-  }, [newComment]); 
+  const toggleTutorialExpansion = (e) => {
+    e.stopPropagation();
+    setIsTutorialDetailExpanded(!isTutorialDetailExpanded);
+  };
 
   const checkIfFavorite = async (userId, currentMapId, currentNadeId) => {
     if (!currentNadeId) return;
@@ -122,7 +112,7 @@ function MapDetails() {
       setIsFavorite(favorites.some(fav => fav.mapId === currentMapId && fav.nadeId === currentNadeId));
     } else {
       console.error("Error checking favorites in MapDetails:", favorites?.error);
-      setIsFavorite(false); // На випадок помилки
+      setIsFavorite(false);
     }
     setIsLoadingFavorite(false);
   };
@@ -150,27 +140,11 @@ function MapDetails() {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    console.log("handleCommentSubmit called");
-    console.log("Current user:", currentUser);
-    console.log("Selected nade:", selectedNade);
-    console.log("New comment text:", newComment);
-
-    if (!newComment.trim()) {
-      console.log("Comment text is empty or only whitespace.");
-      return;
-    }
-    if (!currentUser) {
-      console.log("User is not logged in (currentUser is null).");
-      return;
-    }
-    if (!selectedNade) {
-      console.log("No nade selected (selectedNade is null).");
+    if (!newComment.trim() || !currentUser || !selectedNade) {
       return;
     }
 
     setIsSubmittingComment(true);
-    console.log("Submitting comment with:", { mapId, nadeId: selectedNade.id, userId: currentUser.uid, userName: currentUser.displayName || currentUser.email, text: newComment });
-    
     const result = await addCommentToNade(
       mapId, 
       selectedNade.id, 
@@ -179,16 +153,13 @@ function MapDetails() {
       newComment
     );
 
-    console.log("Result from addCommentToNade:", result);
-
     if (result.success && result.comment) {
-      console.log("Comment successfully added, updating state.");
-      setComments(prevComments => [result.comment, ...prevComments]); // Keep optimistic update
-      setNewComment(""); 
-      fetchComments(); // Fetch fresh comments after successful submission
+      setComments(prevComments => [result.comment, ...prevComments]);
+      setNewComment("");
+      fetchComments();
     } else {
-      console.error("Error submitting comment from handleCommentSubmit:", result?.error);
-      alert(`Failed to submit comment: ${result?.error || 'Unknown error'}`); // Temporary alert for debugging
+      console.error("Error submitting comment:", result?.error);
+      alert(`Failed to submit comment: ${result?.error || 'Unknown error'}`);
     }
     setIsSubmittingComment(false);
   };
@@ -198,24 +169,256 @@ function MapDetails() {
       console.error("Missing data for comment deletion.");
       return;
     }
-    // Optionally, add a confirmation dialog here
-    // const confirmDelete = window.confirm("Are you sure you want to delete this comment?");
-    // if (!confirmDelete) return;
 
-    console.log(`Attempting to delete comment ${commentId} on map ${mapId} by user ${currentUser.uid}`);
     const result = await deleteNadeComment(mapId, commentId, currentUser.uid);
-
     if (result.success) {
-      console.log("Comment deleted successfully from Firestore. Updating UI.");
       setComments(prevComments => prevComments.filter(comment => comment.id !== commentId));
     } else {
-      console.error("Error deleting comment (from MapDetails):", result.error);
-      // Optionally, show an error message to the user
+      console.error("Error deleting comment:", result.error);
       alert(`Failed to delete comment: ${result.error}`);
     }
   };
 
-  const map = maps.find((m) => m.id === mapId);
+  // Fetch comments callback
+  const fetchComments = useCallback(async () => {
+    if (selectedNade && mapId) {
+      const result = await getNadeComments(mapId, selectedNade.id);
+      if (result && result.needsIndex) {
+        console.error("Firestore Error: Missing composite index for comments query.", result.error);
+        setComments([]);
+      } else if (Array.isArray(result)) {
+        setComments(result);
+      } else if (result && result.error) {
+        console.error("Error fetching comments:", result.error);
+      } else {
+        setComments([]);
+      }
+    } else {
+      setComments([]);
+    }
+  }, [selectedNade, mapId]);
+
+  const handleTrajectoryClick = (nade, e) => {
+    e.stopPropagation();
+    setSelectedTrajectory(selectedTrajectory === nade.id ? null : nade.id);
+    handleNadeClick(nade);
+  };
+
+  const handleMapClick = () => {
+    setSelectedTrajectory(null);
+  };
+
+  // Effects
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const updateMapDimensions = () => {
+      if (!mapImageRef.current || !imageLoaded || !mapContainerRef.current) return;
+
+      const container = mapContainerRef.current;
+      const containerRect = container.getBoundingClientRect();
+      
+      // Use the smaller dimension to maintain aspect ratio
+      const containerSize = Math.min(containerRect.width, containerRect.height);
+      
+      // Calculate scale based on the original 1024x1024 map size
+      const scale = containerSize / 1024;
+      
+      // Calculate offsets to center the map
+      const offsetX = (containerRect.width - containerSize) / 2;
+      const offsetY = (containerRect.height - containerSize) / 2;
+
+      setMapDimensions({
+        width: containerSize,
+        height: containerSize,
+        scale,
+        offsetX,
+        offsetY
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(updateMapDimensions);
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current);
+    }
+
+    window.addEventListener('resize', updateMapDimensions);
+    updateMapDimensions();
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateMapDimensions);
+    };
+  }, [imageLoaded]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [newComment]);
+
+  useEffect(() => {
+    if (!selectedNade) {
+      setIsTutorialDetailExpanded(false);
+      setIsFavorite(false);
+      setComments([]);
+      return;
+    }
+    if (currentUser && selectedNade) {
+      checkIfFavorite(currentUser.uid, mapId, selectedNade.id);
+    }
+    fetchComments();
+  }, [selectedNade, currentUser, mapId, fetchComments]);
+
+  useEffect(() => {
+    async function fetchMap() {
+      const data = await getNadeDataForMap(mapId);
+      setMap(data);
+    }
+    fetchMap();
+  }, [mapId]);
+
+  // Render functions
+  const renderTrajectories = () => {
+    if (!imageLoaded || !mapDimensions.scale || !map) return null;
+
+    const filteredNades = map.spots.flatMap(spot => 
+      spot.nades.filter(nade => 
+        selectedType === 'all' || nade.type === selectedType
+      )
+    );
+
+    return (
+      <div 
+        className={`trajectory-container ${selectedTrajectory ? 'trajectory-active' : ''}`}
+        onClick={handleMapClick}
+      >
+        <svg
+          className="trajectory-line"
+          width="100%"
+          height="100%"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0
+          }}
+        >
+          {filteredNades.map((nade, index) => {
+            if (!nade.trajectory || nade.trajectory.length < 2) return null;
+
+            const isActive = selectedNade?.id === nade.id;
+            const isTrajectorySelected = selectedTrajectory === nade.id;
+            const opacity = (selectedNade && !isActive) || (selectedTrajectory && !isTrajectorySelected) ? 0.3 : 1;
+
+            return (
+              <g 
+                key={index} 
+                className={`trajectory-group ${isActive ? 'active' : ''}`}
+                onClick={(e) => handleTrajectoryClick(nade, e)}
+              >
+                {/* Draw shadow for better visibility */}
+                <path
+                  d={createTrajectoryPath(nade.trajectory)}
+                  className="trajectory-shadow"
+                  style={{
+                    stroke: 'rgba(0, 0, 0, 0.5)',
+                    strokeWidth: (isActive || isTrajectorySelected) ? 5 : 3,
+                    opacity: opacity * 0.5
+                  }}
+                />
+                {/* Draw main trajectory path */}
+                <path
+                  d={createTrajectoryPath(nade.trajectory)}
+                  className={`trajectory-path ${nade.type}`}
+                  style={{
+                    opacity,
+                    strokeWidth: (isActive || isTrajectorySelected) ? 4 : 2
+                  }}
+                />
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    );
+  };
+
+  const renderMarkers = () => {
+    if (!imageLoaded || !mapDimensions.scale || !map) return null;
+
+    const filteredNades = map.spots.flatMap(spot => 
+      spot.nades.filter(nade => 
+        selectedType === 'all' || nade.type === selectedType
+      )
+    );
+
+    return filteredNades.map((nade, index) => {
+      if (!nade.trajectory || nade.trajectory.length < 2) return null;
+
+      const startPoint = convertToScreenCoordinates(nade.trajectory[0].x, nade.trajectory[0].y);
+      const endPoint = convertToScreenCoordinates(
+        nade.trajectory[nade.trajectory.length - 1].x,
+        nade.trajectory[nade.trajectory.length - 1].y
+      );
+
+      const isActive = selectedNade?.id === nade.id;
+      const isTrajectorySelected = selectedTrajectory === nade.id;
+      const opacity = (selectedNade && !isActive) || (selectedTrajectory && !isTrajectorySelected) ? 0.3 : 1;
+      const scale = isActive ? 1.2 : 1;
+
+      return (
+        <React.Fragment key={index}>
+          <div
+            className={`nade-marker start ${isActive ? 'active' : ''}`}
+            style={{
+              left: startPoint.x,
+              top: startPoint.y,
+              opacity,
+              transform: `translate(-50%, -50%) scale(${scale})`,
+              transition: 'all 0.2s ease'
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNadeClick(nade);
+            }}
+          >
+            <div className="nade-tooltip">
+              <strong>{nade.title}</strong>
+              <div className="tooltip-detail">{nade.technique}</div>
+            </div>
+          </div>
+          <div
+            className={`nade-marker end ${nade.type} ${nade.team} ${isActive ? 'active' : ''}`}
+            style={{
+              left: endPoint.x,
+              top: endPoint.y,
+              opacity,
+              transform: `translate(-50%, -50%) scale(${scale})`,
+              transition: 'all 0.2s ease',
+              backgroundImage: `url(${grenadeIcons[nade.type][nade.team]})`
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNadeClick(nade);
+            }}
+          >
+            <div className="nade-tooltip">
+              <strong>{nade.title}</strong>
+              <div className="tooltip-detail">{nade.description}</div>
+            </div>
+          </div>
+        </React.Fragment>
+      );
+    });
+  };
+
+  // Main render
   if (!map) return <div>Map not found</div>;
 
   const filteredNades = map.spots.flatMap(spot => 
@@ -224,26 +427,13 @@ function MapDetails() {
     ).map(nade => ({...nade, spotName: spot.name}))
   );
 
-  const handleNadeClick = (nade) => {
-    if (selectedNade?.id === nade.id) {
-    } else {
-      setSelectedNade(nade);
-      setIsTutorialDetailExpanded(false);
-    }
-  };
-
-  const toggleTutorialExpansion = (e) => {
-    e.stopPropagation();
-    setIsTutorialDetailExpanded(!isTutorialDetailExpanded);
-  };
-
   return (
     <div className={`map-details ${isTutorialDetailExpanded ? 'tutorial-panel-expanded' : ''}`}>
       <div className="map-header">
         <h1>{map.name}</h1>
         <div className="nade-type-filter">
-          <button 
-            className={selectedType === 'all' ? 'active' : ''} 
+          <button
+            className={selectedType === 'all' ? 'active' : ''}
             onClick={() => setSelectedType('all')}
           >
             All
@@ -261,77 +451,21 @@ function MapDetails() {
         </div>
       </div>
 
-      <div className="map-container">
+      <div className="map-container" ref={mapContainerRef}>
         <div className="map-wrapper">
-          <img src={map.image} alt={map.name} className="map-image" />
-          
-          {/* Spots markers */}
-          {map.spots.map(spot => (
-            <div
-              key={spot.id}
-              className="spot-marker"
-              style={{
-                left: `${spot.position.x}%`,
-                top: `${spot.position.y}%`
-              }}
-              onClick={() => console.log('Spot clicked:', spot.name)}
-            >
-              <div className="spot-name">{spot.name}</div>
-            </div>
-          ))}
-
-          {/* Nade trajectories */}
-          {filteredNades.map(nade => {
-            const nadeTypeData = nadeTypes.find(type => type.id === nade.type);
-            const iconSrc = grenadeIcons[nade.type]?.[nade.team] || grenadeIcons[nade.type]?.T;
-
-            return (
-              <div key={nade.id}>
-                <div
-                  className={`nade-marker start ${selectedNade?.id === nade.id ? 'active' : ''}`}
-                  style={{
-                    left: `${nade.startPosition.x}%`,
-                    top: `${nade.startPosition.y}%`,
-                    backgroundColor: nadeTypeData?.color
-                  }}
-                  onClick={() => handleNadeClick(nade)}
-                >
-                  <div className="nade-tooltip">
-                    <strong>{nade.title}</strong>
-                    <p>{nade.technique}</p>
-                  </div>
-                </div>
-
-                <div
-                  className={`nade-marker end ${selectedNade?.id === nade.id ? 'active' : ''}`}
-                  style={{
-                    left: `${nade.endPosition.x}%`,
-                    top: `${nade.endPosition.y}%`,
-                    backgroundImage: iconSrc ? `url(${iconSrc})` : 'none'
-                  }}
-                />
-
-                <svg className="trajectory-line" preserveAspectRatio="none">
-                  <line
-                    x1={`${nade.startPosition.x}%`}
-                    y1={`${nade.startPosition.y}%`}
-                    x2={`${nade.endPosition.x}%`}
-                    y2={`${nade.endPosition.y}%`}
-                    stroke={nadeTypeData?.color}
-                    strokeWidth={selectedNade?.id === nade.id ? "3" : "2"}
-                    strokeDasharray={selectedNade?.id === nade.id ? "none" : "5,5"}
-                  />
-                </svg>
-              </div>
-            );
-          })}
-
-          <div className="map-info">
-            <h2 className="map-name">{map.name}</h2>
-            <div className="lineups-count">
-              {map.spots.reduce((total, spot) => total + spot.nades.length, 0)} lineups
-            </div>
-          </div>
+          <img
+            ref={mapImageRef}
+            src={map.image}
+            alt={map.name}
+            className="map-image"
+            onLoad={() => setImageLoaded(true)}
+          />
+          {imageLoaded && mapDimensions.scale && (
+            <>
+              {renderTrajectories()}
+              {renderMarkers()}
+            </>
+          )}
         </div>
       </div>
 

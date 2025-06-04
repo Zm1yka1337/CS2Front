@@ -6,9 +6,9 @@ import app from '../components/firebase';
 import { 
   getUserFavoriteNades, 
   removeNadeFromFavorites,
-  getUserVideoViewStats
+  getUserVideoViewStats,
+  getAllNadeData
 } from '../services/firebaseService';
-import { maps as localNadesData } from '../data/nades';
 import '../styles/UserProfilePage.css';
 import NadeDetailsModal from '../components/NadeDetailsModal';
 
@@ -53,15 +53,18 @@ function UserProfilePage() {
         setUserData(profileData);
 
         if (profileData.favorites && profileData.favorites.length > 0) {
-            const detailedFavorites = profileData.favorites.map(fav => {
-                const mapData = localNadesData.find(m => m.id === fav.mapId);
-                const nadeData = mapData?.spots.flatMap(s => s.nades).find(n => n.id === fav.nadeId);
-                return {
+            const detailedFavorites = [];
+            for (const fav of profileData.favorites) {
+                const mapData = await getAllNadeData(fav.mapId);
+                const nadeData = mapData?.spots?.flatMap(s => s.nades).find(n => n.id === fav.nadeId);
+                if (nadeData) {
+                  detailedFavorites.push({
                     ...fav,
-                    title: nadeData?.title || 'Unknown Nade',
+                    title: nadeData.title,
                     mapName: mapData?.name || 'Unknown Map',
-                };
-            }).filter(fav => fav.title !== 'Unknown Nade');
+                  });
+                }
+            }
             setFavoriteNades(detailedFavorites);
         } else {
             setFavoriteNades([]);
@@ -155,10 +158,10 @@ function UserProfilePage() {
     }
   };
 
-  const getNadeTitleForViewStat = (viewKey) => {
+  const getNadeTitleForViewStat = async (viewKey) => {
     const [mapId, nadeId] = viewKey.split('_');
-    const mapData = localNadesData.find(m => m.id === mapId);
-    const nadeData = mapData?.spots.flatMap(s => s.nades).find(n => n.id === nadeId);
+    const mapData = await getAllNadeData(mapId);
+    const nadeData = mapData?.spots?.flatMap(s => s.nades).find(n => n.id === nadeId);
     return nadeData ? `${nadeData.title} (Мапа: ${mapData.name})` : `Невідома граната (${viewKey})`;
   };
 
@@ -216,7 +219,7 @@ function UserProfilePage() {
                 .sort(([, countA], [, countB]) => countB - countA)
                 .map(([nadeKey, count]) => (
                 <li key={nadeKey} className="video-stat-item">
-                  <span className="video-stat-title">{getNadeTitleForViewStat(nadeKey)}</span>
+                  <AsyncNadeTitle viewKey={nadeKey} />
                   <span className="video-stat-count">Переглядів: {count}</span>
                 </li>
               ))}
@@ -237,6 +240,19 @@ function UserProfilePage() {
       )}
     </div>
   );
+}
+
+function AsyncNadeTitle({ viewKey }) {
+  const [title, setTitle] = React.useState('Завантаження...');
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const t = await getNadeTitleForViewStat(viewKey);
+      if (mounted) setTitle(t);
+    })();
+    return () => { mounted = false; };
+  }, [viewKey]);
+  return <span className="video-stat-title">{title}</span>;
 }
 
 export default UserProfilePage; 

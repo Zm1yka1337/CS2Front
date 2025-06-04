@@ -30,7 +30,12 @@ function Navbar({ currentUser, toggleTheme, currentTheme }) {
           >
             Maps
           </Link>
-          {/* Add more navigation links here as needed */}
+          <Link 
+            to="/theory" 
+            className={location.pathname === '/theory' ? 'active' : ''}
+          >
+            Theory
+          </Link>
         </div>
         <button onClick={toggleTheme} className="theme-toggle-button" aria-label="Toggle theme">
           <img 

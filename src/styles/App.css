@@ -78,7 +78,6 @@ button {
   font: inherit;
   color: inherit;
 }
-
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -89,3 +88,4 @@ button {
 .text-center { text-align: center; }
 .mb-4 { margin-bottom: 1rem; }
 .mt-4 { margin-top: 1rem; }
+

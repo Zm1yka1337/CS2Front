@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom'; // useNavigate might be needed for login redirect
-import { maps } from '../data/nades';
 import { getAuth } from 'firebase/auth';
 import { 
   addNadeToFavorites, 
   removeNadeFromFavorites, 
   getUserFavoriteNades,
-  recordNadeView
+  recordNadeView,
+  getNadeDataForMap
   // TODO: Add comment functions if/when implemented: addCommentToNade, getNadeComments, deleteNadeComment
 } from '../services/firebaseService';
 import '../styles/NadeDetails.css'; // Reusing the same styles for the modal content
@@ -54,37 +54,43 @@ function NadeDetailsModal({ mapId, nadeId, currentUser, onClose }) {
   const playerMountId = `yt-player-mount-${nadeId || Date.now()}`; // Unique ID for the player mount point
 
   useEffect(() => {
-    const map = maps.find(m => m.id === mapId);
-    const nade = map?.spots.flatMap(spot => 
-      spot.nades.map(n => ({...n, spotName: spot.name, mapName: map.name }))
-    ).find(n => n.id === nadeId);
-    
-    if (nade) {
-      setNadeData(nade);
-      const extractedVideoId = getYouTubeVideoId(nade.videoUrl);
-      setCurrentVideoId(extractedVideoId);
-      setIsViewRecorded(false); // Reset view recorded state when nade changes
+    getNadeDataForMap(mapId).then(data => {
+      if (data && data.nades && data.nades.length > 0) {
+        const nade = data.nades.find(n => n.id === nadeId);
+        if (nade) {
+          setNadeData(nade);
+          const extractedVideoId = getYouTubeVideoId(nade.videoUrl);
+          setCurrentVideoId(extractedVideoId);
+          setIsViewRecorded(false); // Reset view recorded state when nade changes
 
-      if (currentUser) {
-        checkIfFavorite(currentUser.uid, mapId, nadeId);
-        // recordNadeView if modal open implies a view - MOVED, will be triggered by player event
-        /* 
-        recordNadeView(currentUser.uid, mapId, nadeId)
-          .then(result => {
-            if (result.success) {
-              console.log(`View for ${nadeId} (modal) recorded. New count: ${result.newViewCount}`);
-            }
-          })
-          .catch(err => console.error("Failed to record view (modal):", err));
-        */
-        // fetchComments(mapId, nadeId); // Fetch comments when nade data is available
+          if (currentUser) {
+            checkIfFavorite(currentUser.uid, mapId, nadeId);
+            // recordNadeView if modal open implies a view - MOVED, will be triggered by player event
+            /* 
+            recordNadeView(currentUser.uid, mapId, nadeId)
+              .then(result => {
+                if (result.success) {
+                  console.log(`View for ${nadeId} (modal) recorded. New count: ${result.newViewCount}`);
+                }
+              })
+              .catch(err => console.error("Failed to record view (modal):", err));
+            */
+            // fetchComments(mapId, nadeId); // Fetch comments when nade data is available
+          } else {
+            setIsLoadingFavorite(false);
+          }
+        } else {
+          console.error("Nade not found in modal for:", mapId, nadeId);
+          setCurrentVideoId(null);
+        }
       } else {
-        setIsLoadingFavorite(false);
+        console.error("No nades found in the map data for:", mapId);
+        setCurrentVideoId(null);
       }
-    } else {
-      console.error("Nade not found in modal for:", mapId, nadeId);
+    }).catch(err => {
+      console.error("Error fetching nade data for map:", err);
       setCurrentVideoId(null);
-    }
+    });
     // Cleanup function for player will be in a separate useEffect
   }, [mapId, nadeId, currentUser]);
 

@@ -1,120 +1,143 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/TrajectoryMap.css'; // Стилі для цього компонента
 
-const TrajectoryMap = ({ mapImageUrl, mapOriginalWidth, mapOriginalHeight, trajectoryPoints }) => {
-  const [imgNaturalDimensions, setImgNaturalDimensions] = useState({ width: 0, height: 0 });
+const TrajectoryMap = ({ mapImageUrl, trajectoryPoints }) => {
+  const containerRef = useRef(null);
+  const imageRef = useRef(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageRect, setImageRect] = useState(null);
 
-  if (!mapImageUrl || !mapOriginalWidth || !mapOriginalHeight || !trajectoryPoints || trajectoryPoints.length < 2) {
-    // Якщо даних недостатньо, не рендеримо нічого або показуємо повідомлення
-    return <div className="trajectory-map-container error">Даних для відображення траєкторії недостатньо.</div>;
-  }
+  useEffect(() => {
+    const updateImageRect = () => {
+      if (!imageRef.current || !imageLoaded) return;
+      
+      const img = imageRef.current;
+      const rect = img.getBoundingClientRect();
+      const imgNaturalSize = Math.min(img.naturalWidth, img.naturalHeight);
+      
+      // Отримуємо актуальні розміри квадратного зображення на екрані
+      const displaySize = Math.min(rect.width, rect.height);
+      
+      // Розраховуємо відступи для центрування
+      const offsetX = (rect.width - displaySize) / 2;
+      const offsetY = (rect.height - displaySize) / 2;
 
-  // Перетворюємо масив точок в рядок для атрибута 'points' SVG <polyline>
-  const pointsString = trajectoryPoints.map(p => `${p.x},${p.y}`).join(' ');
+      setImageRect({
+        size: displaySize,
+        naturalSize: imgNaturalSize,
+        offsetX: rect.left + offsetX,
+        offsetY: rect.top + offsetY,
+        scale: displaySize / imgNaturalSize
+      });
+    };
 
-  const handleImageLoad = (event) => {
-    setImgNaturalDimensions({
-      width: event.target.naturalWidth,
-      height: event.target.naturalHeight,
-    });
+    const observer = new ResizeObserver(updateImageRect);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    window.addEventListener('resize', updateImageRect);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateImageRect);
+    };
+  }, [imageLoaded]);
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
   };
 
-  let viewBoxAspectRatio = 'N/A';
-  if (mapOriginalHeight && mapOriginalHeight !== 0) {
-    viewBoxAspectRatio = (mapOriginalWidth / mapOriginalHeight).toFixed(4);
-  }
+  // Конвертуємо координати з оригінального розміру в поточний розмір
+  const convertCoordinates = (point) => {
+    if (!imageRect) return { x: 0, y: 0 };
 
-  let imageAspectRatio = 'Завантаження...';
-  if (imgNaturalDimensions.height !== 0) {
-    imageAspectRatio = (imgNaturalDimensions.width / imgNaturalDimensions.height).toFixed(4);
-  }
+    // Нормалізуємо координати відносно квадратної карти
+    const normalizedX = point.x / imageRect.naturalSize;
+    const normalizedY = point.y / imageRect.naturalSize;
 
-  let warningMessage = null;
-  if (imgNaturalDimensions.height !== 0 && mapOriginalHeight && mapOriginalHeight !== 0) {
-    const threshold = 0.01; // Допустима похибка для чисел з плаваючою комою
-    if (Math.abs(parseFloat(viewBoxAspectRatio) - parseFloat(imageAspectRatio)) > threshold) {
-      warningMessage = (
-        <div style={{ color: 'red', fontWeight: 'bold', textAlign: 'left', marginTop: '10px', padding: '10px', border: '2px solid red', backgroundColor: '#fff0f0' }}>
-          <h4>КРИТИЧНА ПОМИЛКА АДАПТИВНОСТІ!</h4>
-          <p>Траєкторії БУДУТЬ 'з'їжджати' при зміні розміру екрана.</p>
-          <p>Співвідношення сторін <strong>ViewBox</strong> (з ваших даних): <strong>{viewBoxAspectRatio}</strong> (використано mapOriginalWidth: {mapOriginalWidth}, mapOriginalHeight: {mapOriginalHeight})</p>
-          <p>Співвідношення сторін <strong>Зображення</strong> (реальне з файлу): <strong>{imageAspectRatio}</strong> (реальні розміри картинки: {imgNaturalDimensions.width}px × {imgNaturalDimensions.height}px)</p>
-          <p style={{ marginTop: '10px' }}><strong>ЦІ ДВА ЗНАЧЕННЯ СПІВВІДНОШЕННЯ СТОРІН МАЮТЬ БУТИ ПРАКТИЧНО ОДНАКОВИМИ!</strong></p>
-          <p style={{ marginTop: '15px' }}><strong>Щоб виправити це для поточної карти:</strong></p>
-          <ol style={{ margin: '5px 0 0 20px', paddingLeft: '0' }}>
-            <li>Запам'ятайте реальні розміри зображення: <strong>{imgNaturalDimensions.width}px × {imgNaturalDimensions.height}px</strong>.</li>
-            <li>Відкрийте ваш файл даних (наприклад, <code>src/data/nades.js</code>).</li>
-            <li>Знайдіть об'єкт, що відповідає цій карті/гранаті.</li>
-            <li>Встановіть у ньому такі значення:</li>
-            <ul style={{ margin: '5px 0 0 20px', paddingLeft: '0', listStyleType: 'disc' }}>
-              <li><code>mapOriginalWidth: {imgNaturalDimensions.width},</code></li>
-              <li><code>mapOriginalHeight: {imgNaturalDimensions.height},</code></li>
-            </ul>
-            <li>Або, якщо ви хочете використовувати іншу базову ширину для ViewBox (наприклад, 1000), то встановіть:</li>
-            <ul style={{ margin: '5px 0 0 20px', paddingLeft: '0', listStyleType: 'disc' }}>
-              <li><code>mapOriginalWidth: 1000,</code> (або інше бажане значення)</li>
-              <li><code>mapOriginalHeight: {Math.round((imgNaturalDimensions.height / imgNaturalDimensions.width) * 1000)},</code> (розраховано для ширини 1000)</li>
-            </ul>
-            <li>Переконайтеся, що всі координати <code>trajectoryPoints</code> для цієї гранати задані відносно обраних вами <code>mapOriginalWidth</code> та <code>mapOriginalHeight</code>.</li>
-          </ol>
-        </div>
-      );
-    }
-  }
+    // Конвертуємо в поточні координати
+    return {
+      x: normalizedX * imageRect.size,
+      y: normalizedY * imageRect.size
+    };
+  };
+
+  // Створення SVG path
+  const createPath = (points) => {
+    if (!points || points.length < 2 || !imageRect) return '';
+
+    return points
+      .map((point, index) => {
+        const { x, y } = convertCoordinates(point);
+        return index === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
+      })
+      .join(' ');
+  };
+
+  // Рендер маркера
+  const renderMarker = (point, type) => {
+    if (!imageRect) return null;
+
+    const { x, y } = convertCoordinates(point);
+    const markerSize = imageRect.size * 0.015; // 1.5% від розміру карти
+
+    return (
+      <g className={`trajectory-marker ${type}`}>
+        <circle
+          cx={x}
+          cy={y}
+          r={markerSize}
+          className={`marker-circle ${type}`}
+        />
+        {type === 'start' && (
+          <circle
+            cx={x}
+            cy={y}
+            r={markerSize * 0.5}
+            className="marker-inner"
+          />
+        )}
+      </g>
+    );
+  };
 
   return (
-    <div className="trajectory-map-outer-container"> {/* Обгортка для карти та діагностики */}
-      <div className="trajectory-map-container">
-        <img 
-          src={mapImageUrl} 
-          alt="Map background" 
-          className="map-background-image"
-          onLoad={handleImageLoad} // Обробник завантаження зображення
+    <div className="trajectory-map-container" ref={containerRef}>
+      <div className="map-wrapper">
+        <img
+          ref={imageRef}
+          src={mapImageUrl}
+          alt="Map"
+          className="map-image"
+          onLoad={handleImageLoad}
         />
-        <svg
-          className="trajectory-svg-overlay"
-          viewBox={`0 0 ${mapOriginalWidth} ${mapOriginalHeight}`}
-          preserveAspectRatio="xMinYMin meet" // Змінено з xMidYMid meet
-        >
-          <polyline
-            points={pointsString}
-            className="trajectory-line"
-            fill="none"
-            stroke="#FF0000" // Колір лінії (наприклад, червоний)
-            strokeWidth="8"   // Зменшено з 10
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {/* Можна додати маркери для початку/кінця траєкторії, якщо потрібно */}
-          {trajectoryPoints.length > 0 && (
-            <circle 
-              cx={trajectoryPoints[0].x} 
-              cy={trajectoryPoints[0].y} 
-              r="12" // Зменшено з 15
-              fill="rgba(0, 255, 0, 0.7)" // Зелений напівпрозорий
-              stroke="#000000"
-              strokeWidth="3" // Зменшено з 5
-            />
-          )}
-          {trajectoryPoints.length > 0 && (
-            <circle 
-              cx={trajectoryPoints[trajectoryPoints.length - 1].x} 
-              cy={trajectoryPoints[trajectoryPoints.length - 1].y} 
-              r="12" // Зменшено з 15
-              fill="rgba(255, 0, 0, 0.7)" // Червоний напівпрозорий
-              stroke="#000000"
-              strokeWidth="3" // Зменшено з 5
-            />
-          )}
-        </svg>
-      </div>
-      <div className="trajectory-debug-info">
-        <h4>Діагностика траєкторії:</h4>
-        <p><strong>ViewBox SVG:</strong> {`0 0 ${mapOriginalWidth} ${mapOriginalHeight}`}</p>
-        <p><strong>Співвідношення сторін ViewBox:</strong> {viewBoxAspectRatio}</p>
-        <p><strong>Розміри завантаж. зображення (natural):</strong> {imgNaturalDimensions.width} x {imgNaturalDimensions.height}</p>
-        <p><strong>Співвідношення сторін зображення:</strong> {imageAspectRatio}</p>
-        {warningMessage}
+        {imageLoaded && imageRect && (
+          <svg
+            className="trajectory-overlay"
+            width={imageRect.size}
+            height={imageRect.size}
+            style={{
+              position: 'absolute',
+              left: `${imageRect.offsetX}px`,
+              top: `${imageRect.offsetY}px`
+            }}
+          >
+            {trajectoryPoints?.map((trajectory, index) => (
+              <g key={index} className="trajectory-group">
+                <path
+                  d={createPath(trajectory.points)}
+                  className={`trajectory-path ${trajectory.type || 'normal'}`}
+                  style={{
+                    stroke: trajectory.color || '#FF0000',
+                    strokeWidth: `${imageRect.size * 0.003}px`
+                  }}
+                />
+                {renderMarker(trajectory.points[0], 'start')}
+                {renderMarker(trajectory.points[trajectory.points.length - 1], 'end')}
+              </g>
+            ))}
+          </svg>
+        )}
       </div>
     </div>
   );
