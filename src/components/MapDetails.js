@@ -438,7 +438,7 @@ function MapDetails() {
   };
 
   // Main render
-  if (!map) return <div>Map not found</div>;
+  if (!map) return <div>Карту не знайдено</div>;
 
   const filteredNades = map.spots.flatMap(spot => 
     spot.nades.filter(nade => 
@@ -455,7 +455,7 @@ function MapDetails() {
             className={selectedType === 'all' ? 'active' : ''}
             onClick={() => setSelectedType('all')}
           >
-            All
+            Усі
           </button>
           {nadeTypes.map(type => (
             <button

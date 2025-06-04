@@ -295,25 +295,6 @@ function NadeDetailsModal({ mapId, nadeId, currentUser, onClose }) {
                   <p>{description}</p>
                 </div>
               )}
-              {/* Comments Section */}
-              <div className="comments-section">
-                <h3>Коментарі</h3>
-                <div className="comments-list">
-                  {comments.length === 0 && <div className="no-comments">Коментарів ще немає.</div>}
-                  {comments.map(comment => (
-                    <div key={comment.id} className="comment-item">
-                      <div className="comment-header">
-                        <span className="comment-user">{comment.userName || 'Користувач'}</span>
-                        <span className="comment-date">{comment.createdAt?.seconds ? new Date(comment.createdAt.seconds * 1000).toLocaleString() : ''}</span>
-                        {currentUser && comment.userId === currentUser.uid && (
-                          <button className="delete-comment-btn" onClick={() => handleDeleteComment(comment.id, comment.userId)} title="Видалити">×</button>
-                        )}
-                      </div>
-                      <div className="comment-text">{comment.text}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
             <div className="modal-right-column">
               {currentVideoId ? (

@@ -54,7 +54,7 @@ function Home() {
 
   return (
     <div className="home">
-      <h1>CS2 Grenade Lineups</h1>
+      <h1>CS2 Гранати — Lineups</h1>
       {success && <div style={{color: 'green', marginBottom: '1rem'}}>Дані успішно імпортовано!</div>}
       {error && <div style={{color: 'red', marginBottom: '1rem'}}>{error}</div>}
       {mapsLoading ? (
@@ -79,12 +79,12 @@ function Home() {
                 <div className="map-info">
                   <h2>{map.name}</h2>
                   <span className="map-stats">
-                    {`${getTotalNades(map.spots)} nades`}
+                    {`${getTotalNades(map.spots)} гранат`}
                   </span>
                 </div>
               </div>
             </Link>
-          )) : <div>No maps available</div>}
+          )) : <div>Карт не знайдено</div>}
         </div>
       )}
     </div>
