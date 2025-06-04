@@ -96,13 +96,13 @@ function NadeDetails() {
     if (pos && typeof pos.x !== 'undefined' && typeof pos.y !== 'undefined') {
       return `(X: ${pos.x}%, Y: ${pos.y}%)`;
     }
-    return 'Н/Д';
+    return 'N/A';
   };
 
   return (
     <div className="nade-details-page">
       <button className="back-button" onClick={() => navigate(`/map/${mapId}`)}>
-        ← Назад до {mapName || mapId}
+        ← Back to {mapName || mapId}
       </button>
 
       <div className="nade-content">
@@ -110,10 +110,10 @@ function NadeDetails() {
         
         <div className="nade-info-grid">
           <div className="info-card">
-            <h3>Локація</h3>
-            <p><strong>Звідки:</strong> {spotName}</p>
-            <p><strong>Старт (прибл.):</strong> {formatPosition(startPosition)}</p>
-            <p><strong>Кінець (ціль):</strong> {formatPosition(endPosition)}</p>
+            <h3>Location</h3>
+            <p><strong>From:</strong> {spotName}</p>
+            <p><strong>Start (approx.):</strong> {formatPosition(startPosition)}</p>
+            <p><strong>End (target):</strong> {formatPosition(endPosition)}</p>
           </div>
 
           <div className="info-card">
@@ -125,14 +125,14 @@ function NadeDetails() {
 
           <div className="info-card">
             <h3>Деталі</h3>
-            <p><strong>Tickrate:</strong> {tickrate}</p>
-            <p><strong>Спот:</strong> {spotName}</p>
+            <p><strong>Тікрейт:</strong> {tickrate}</p>
+            <p><strong>Позиція:</strong> {spotName}</p>
           </div>
         </div>
 
         {videoUrl && !showTutorial && (
           <button className="watch-tutorial-button" onClick={handleOpenTutorial}>
-            Переглянути туторіал (відео та інструкція)
+            Пидивитися туторіал (Video & Instructions)
           </button>
         )}
 
@@ -140,7 +140,7 @@ function NadeDetails() {
           <div className="tutorial-modal-overlay">
             <div className="tutorial-modal-content">
               <div className="tutorial-modal-header">
-                <h2>{title} — Туторіал</h2>
+                <h2>{title} - Туторіал</h2>
                 <button className="close-tutorial-button" onClick={() => setShowTutorial(false)}>
                   &times;
                 </button>
@@ -154,7 +154,7 @@ function NadeDetails() {
                         className={`favorite-button modal-favorite-button ${isFavorite ? 'is-favorite' : ''}`}
                         disabled={isLoadingFavorite}
                       >
-                        {isLoadingFavorite ? 'Обробка...' : (isFavorite ? '★ Видалити з улюблених' : '☆ Додати до улюблених')}
+                        {isLoadingFavorite ? 'Processing...' : (isFavorite ? '★ Remove from Favorites' : '☆ Add to Favorites')}
                       </button>
                     )}
                     {description && (
@@ -165,18 +165,20 @@ function NadeDetails() {
                     )}
                     <div className="comments-placeholder">
                       <h3>Коментарі</h3>
-                      <p><em>(Секція коментарів скоро з'явиться)</em></p>
+                      <p><em>(Коментарі скоро поясляться)</em></p>
                     </div>
                   </div>
-                  <div className="video-section">
-                    <div className="video-container">
-                      <iframe
-                        src={videoUrl}
-                        title={`${title} Lineup Tutorial`}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
+                  <div className="modal-right-column">
+                    <div className="video-section">
+                      <div className="video-container">
+                        <iframe
+                          src={videoUrl}
+                          title={`${title} Lineup Tutorial`}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

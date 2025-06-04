@@ -20,7 +20,7 @@ function Navbar({ currentUser, toggleTheme, currentTheme }) {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
-          CS2 Гранати
+          CS2 Nades
         </Link>
         
         <div className="nav-links">
@@ -28,13 +28,13 @@ function Navbar({ currentUser, toggleTheme, currentTheme }) {
             to="/" 
             className={location.pathname === '/' ? 'active' : ''}
           >
-            Карти
+            Maps
           </Link>
           <Link 
             to="/theory" 
             className={location.pathname === '/theory' ? 'active' : ''}
           >
-            Теорія
+            Theory
           </Link>
         </div>
         <button onClick={toggleTheme} className="theme-toggle-button" aria-label="Toggle theme">

@@ -7,12 +7,12 @@ function Theory() {
   const [activeSection, setActiveSection] = useState('peaks');
 
   const sections = [
-    { id: 'peaks', name: 'Піки' },
-    { id: 'movement', name: 'Рух' },
-    { id: 'sounds', name: 'Звуки' },
-    { id: 'utility', name: 'Утіліті' },
-    { id: 'positions', name: 'Позиції' },
-    { id: 'economy', name: 'Економіка' }
+    { id: 'peaks', name: 'Peeks' },
+    { id: 'movement', name: 'Movement' },
+    { id: 'sounds', name: 'Sounds' },
+    { id: 'utility', name: 'Utility' },
+    { id: 'positions', name: 'Positions' },
+    { id: 'economy', name: 'Economy' }
   ];
 
   const renderContent = () => {
@@ -20,16 +20,16 @@ function Theory() {
       case 'peaks':
         return (
           <div className="theory-content">
-            <h2>Піки в CS2</h2>
+            <h2>Peeking in CS2</h2>
             <div className="theory-section">
-              <h3>Основи піків</h3>
-              <p>Володіння різними техніками піків — ключ до переваги у перестрілках.</p>
+              <h3>Peeking Fundamentals</h3>
+              <p>Mastering different peeking techniques is crucial for gaining advantages in gunfights.</p>
 
               <div className="info-box">
-                <strong>Головний принцип:</strong> Завжди пікай з метою і будь готовий стріляти.
+                <strong>Key Principle:</strong> Always peek with purpose and be ready to shoot.
               </div>
 
-              <h4>Базові техніки піків</h4>
+              <h4>Basic Peeking Techniques</h4>
               <div className="technique-cards">
                 <div className="technique-card">
                   <h5>Wide Peek</h5>
