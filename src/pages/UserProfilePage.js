@@ -158,13 +158,6 @@ function UserProfilePage() {
     }
   };
 
-  const getNadeTitleForViewStat = async (viewKey) => {
-    const [mapId, nadeId] = viewKey.split('_');
-    const mapData = await getAllNadeData(mapId);
-    const nadeData = mapData?.spots?.flatMap(s => s.nades).find(n => n.id === nadeId);
-    return nadeData ? `${nadeData.title} (Мапа: ${mapData.name})` : `Невідома граната (${viewKey})`;
-  };
-
   const totalViews = Object.values(videoViewStats).reduce((sum, count) => sum + count, 0);
 
   return (
@@ -241,6 +234,13 @@ function UserProfilePage() {
     </div>
   );
 }
+
+const getNadeTitleForViewStat = async (viewKey) => {
+  const [mapId, nadeId] = viewKey.split('_');
+  const mapData = await getAllNadeData(mapId);
+  const nadeData = mapData?.spots?.flatMap(s => s.nades).find(n => n.id === nadeId);
+  return nadeData ? `${nadeData.title} (Мапа: ${mapData.name})` : `Невідома граната (${viewKey})`;
+};
 
 function AsyncNadeTitle({ viewKey }) {
   const [title, setTitle] = React.useState('Завантаження...');
