@@ -298,24 +298,6 @@ function NadeDetailsModal({ mapId, nadeId, currentUser, onClose }) {
               {/* Comments Section */}
               <div className="comments-section">
                 <h3>Коментарі</h3>
-                {currentUser ? (
-                  <form onSubmit={handleCommentSubmit} className="comment-form">
-                    <textarea
-                      value={newComment}
-                      onChange={e => setNewComment(e.target.value)}
-                      placeholder="Залиште свій коментар..."
-                      rows={2}
-                      maxLength={300}
-                      disabled={isSubmittingComment}
-                      required
-                    />
-                    <button type="submit" disabled={isSubmittingComment || !newComment.trim()}>
-                      {isSubmittingComment ? 'Відправка...' : 'Додати'}
-                    </button>
-                  </form>
-                ) : (
-                  <div className="login-to-comment">Увійдіть, щоб залишити коментар.</div>
-                )}
                 <div className="comments-list">
                   {comments.length === 0 && <div className="no-comments">Коментарів ще немає.</div>}
                   {comments.map(comment => (
