@@ -15,6 +15,14 @@ import NadeDetailsModal from '../components/NadeDetailsModal';
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Винесена функція для отримання назви гранати для статистики переглядів
+export const getNadeTitleForViewStat = async (viewKey) => {
+  const [mapId, nadeId] = viewKey.split('_');
+  const mapData = await getAllNadeData(mapId);
+  const nadeData = mapData?.spots?.flatMap(s => s.nades).find(n => n.id === nadeId);
+  return nadeData ? `${nadeData.title} (Мапа: ${mapData.name})` : `Невідома граната (${viewKey})`;
+};
+
 function UserProfilePage() {
   const [userData, setUserData] = useState(null);
   const [favoriteNades, setFavoriteNades] = useState([]);
@@ -171,13 +179,6 @@ function UserProfilePage() {
     } catch (e) {
       return 'Невідома дата';
     }
-  };
-
-  const getNadeTitleForViewStat = async (viewKey) => {
-    const [mapId, nadeId] = viewKey.split('_');
-    const mapData = await getAllNadeData(mapId);
-    const nadeData = mapData?.spots?.flatMap(s => s.nades).find(n => n.id === nadeId);
-    return nadeData ? `${nadeData.title} (Мапа: ${mapData.name})` : `Невідома граната (${viewKey})`;
   };
 
   const totalViews = Object.values(videoViewStats).reduce((sum, count) => sum + count, 0);
