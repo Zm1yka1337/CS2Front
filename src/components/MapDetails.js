@@ -10,7 +10,8 @@ import {
   addCommentToNade,
   getNadeComments,
   deleteNadeComment,
-  getNadeDataForMap
+  getNadeDataForMap,
+  recordNadeView
 } from '../services/firebaseService';
 
 // Icon imports
@@ -283,6 +284,24 @@ function MapDetails() {
     }
     fetchMap();
   }, [mapId]);
+
+  useEffect(() => {
+    if (
+      isTutorialDetailExpanded &&
+      currentUser &&
+      selectedNade &&
+      selectedNade.id &&
+      mapId
+    ) {
+      recordNadeView(currentUser.uid, mapId, selectedNade.id)
+        .then(result => {
+          if (result.success) {
+            console.log(`View for ${selectedNade.id} recorded (from MapDetails expanded). New count: ${result.newViewCount}`);
+          }
+        })
+        .catch(err => console.error("Failed to record view (from MapDetails expanded):", err));
+    }
+  }, [isTutorialDetailExpanded, currentUser, selectedNade, mapId]);
 
   // Render functions
   const renderTrajectories = () => {

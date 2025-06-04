@@ -6,7 +6,10 @@ import {
   removeNadeFromFavorites, 
   getUserFavoriteNades,
   recordNadeView,
-  getNadeDataForMap
+  getNadeDataForMap,
+  addCommentToNade,
+  getNadeComments,
+  deleteNadeComment
   // TODO: Add comment functions if/when implemented: addCommentToNade, getNadeComments, deleteNadeComment
 } from '../services/firebaseService';
 import '../styles/NadeDetails.css'; // Reusing the same styles for the modal content
@@ -43,9 +46,9 @@ function NadeDetailsModal({ mapId, nadeId, currentUser, onClose }) {
   const [nadeData, setNadeData] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoadingFavorite, setIsLoadingFavorite] = useState(true);
-  // const [comments, setComments] = useState([]);
-  // const [newComment, setNewComment] = useState('');
-  // const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
   const playerRef = useRef(null); // Ref for the YouTube player instance
   const playerDivRef = useRef(null); // Ref for the div where the player will be mounted
@@ -55,8 +58,8 @@ function NadeDetailsModal({ mapId, nadeId, currentUser, onClose }) {
 
   useEffect(() => {
     getNadeDataForMap(mapId).then(data => {
-      if (data && data.nades && data.nades.length > 0) {
-        const nade = data.nades.find(n => n.id === nadeId);
+      if (data && data.spots) {
+        const nade = data.spots.flatMap(s => s.nades).find(n => n.id === nadeId);
         if (nade) {
           setNadeData(nade);
           const extractedVideoId = getYouTubeVideoId(nade.videoUrl);
@@ -65,30 +68,22 @@ function NadeDetailsModal({ mapId, nadeId, currentUser, onClose }) {
 
           if (currentUser) {
             checkIfFavorite(currentUser.uid, mapId, nadeId);
-            // recordNadeView if modal open implies a view - MOVED, will be triggered by player event
-            /* 
-            recordNadeView(currentUser.uid, mapId, nadeId)
-              .then(result => {
-                if (result.success) {
-                  console.log(`View for ${nadeId} (modal) recorded. New count: ${result.newViewCount}`);
-                }
-              })
-              .catch(err => console.error("Failed to record view (modal):", err));
-            */
-            // fetchComments(mapId, nadeId); // Fetch comments when nade data is available
           } else {
             setIsLoadingFavorite(false);
           }
         } else {
           console.error("Nade not found in modal for:", mapId, nadeId);
+          setNadeData(null);
           setCurrentVideoId(null);
         }
       } else {
-        console.error("No nades found in the map data for:", mapId);
+        console.error("No spots found in the map data for:", mapId);
+        setNadeData(null);
         setCurrentVideoId(null);
       }
     }).catch(err => {
       console.error("Error fetching nade data for map:", err);
+      setNadeData(null);
       setCurrentVideoId(null);
     });
     // Cleanup function for player will be in a separate useEffect
@@ -213,8 +208,52 @@ function NadeDetailsModal({ mapId, nadeId, currentUser, onClose }) {
     setIsLoadingFavorite(false);
   };
 
-  // TODO: Comment handling functions (fetchComments, handleAddComment, handleDeleteComment) 
-  // would be similar to MapDetails.js if comments are to be fully functional here.
+  // Fetch comments when nade changes
+  useEffect(() => {
+    if (mapId && nadeId) {
+      fetchComments();
+    }
+    // eslint-disable-next-line
+  }, [mapId, nadeId]);
+
+  const fetchComments = async () => {
+    const result = await getNadeComments(mapId, nadeId);
+    if (Array.isArray(result)) {
+      setComments(result);
+    } else {
+      setComments([]);
+    }
+  };
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim() || !currentUser) return;
+    setIsSubmittingComment(true);
+    const result = await addCommentToNade(
+      mapId,
+      nadeId,
+      currentUser.uid,
+      currentUser.displayName || currentUser.email,
+      newComment.trim()
+    );
+    if (result.success && result.comment) {
+      setNewComment('');
+      fetchComments();
+    } else {
+      alert('Не вдалося додати коментар.');
+    }
+    setIsSubmittingComment(false);
+  };
+
+  const handleDeleteComment = async (commentId, userId) => {
+    if (!currentUser || currentUser.uid !== userId) return;
+    const result = await deleteNadeComment(mapId, commentId, userId);
+    if (result.success) {
+      fetchComments();
+    } else {
+      alert('Не вдалося видалити коментар.');
+    }
+  };
 
   if (!nadeData) {
     // Optional: better loading state within the modal, or rely on parent to not open modal until data is ready
@@ -256,13 +295,43 @@ function NadeDetailsModal({ mapId, nadeId, currentUser, onClose }) {
                   <p>{description}</p>
                 </div>
               )}
-              {/* Comments Placeholder/Section - REMOVING AGAIN AS PER USER REQUEST */}
-              {/* 
-              <div className="comments-placeholder">
+              {/* Comments Section */}
+              <div className="comments-section">
                 <h3>Коментарі</h3>
-                <p><em>(Секція коментарів скоро буде)</em></p> 
+                {currentUser ? (
+                  <form onSubmit={handleCommentSubmit} className="comment-form">
+                    <textarea
+                      value={newComment}
+                      onChange={e => setNewComment(e.target.value)}
+                      placeholder="Залиште свій коментар..."
+                      rows={2}
+                      maxLength={300}
+                      disabled={isSubmittingComment}
+                      required
+                    />
+                    <button type="submit" disabled={isSubmittingComment || !newComment.trim()}>
+                      {isSubmittingComment ? 'Відправка...' : 'Додати'}
+                    </button>
+                  </form>
+                ) : (
+                  <div className="login-to-comment">Увійдіть, щоб залишити коментар.</div>
+                )}
+                <div className="comments-list">
+                  {comments.length === 0 && <div className="no-comments">Коментарів ще немає.</div>}
+                  {comments.map(comment => (
+                    <div key={comment.id} className="comment-item">
+                      <div className="comment-header">
+                        <span className="comment-user">{comment.userName || 'Користувач'}</span>
+                        <span className="comment-date">{comment.createdAt?.seconds ? new Date(comment.createdAt.seconds * 1000).toLocaleString() : ''}</span>
+                        {currentUser && comment.userId === currentUser.uid && (
+                          <button className="delete-comment-btn" onClick={() => handleDeleteComment(comment.id, comment.userId)} title="Видалити">×</button>
+                        )}
+                      </div>
+                      <div className="comment-text">{comment.text}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              */}
             </div>
             <div className="modal-right-column">
               {currentVideoId ? (
